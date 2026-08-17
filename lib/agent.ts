@@ -8,8 +8,8 @@ export const GEMINI_MODEL =
 function systemPrompt(locale: Locale) {
   const lang =
     locale === 'zh'
-      ? 'Write columns, cell text, pick.reason, caveat, and wins values in Simplified Chinese. Keep product names in their original form.'
-      : 'Write columns, cell text, pick.reason, and caveat in English.';
+      ? 'Write columns, cell text, pick.reason, and wins values in Simplified Chinese. Keep product names in their original form.'
+      : 'Write columns, cell text, pick.reason, and wins values in English.';
   return `You are a shopping research agent. Compare consumer products using tools, then return a sourced decision table.
 
 Rules:
@@ -29,8 +29,7 @@ Rules:
     "A": { "Price": { "text": "$348", "source": "https://..." } }
   },
   "wins": { "Price": "A", "Weight": "B" },
-  "pick": { "name": "A", "reason": "one short sentence tied to the user's preference" },
-  "caveat": "Prices/specs can change; verify before buying."
+  "pick": { "name": "A", "reason": "one short sentence tied to the user's preference" }
 }`;
 }
 

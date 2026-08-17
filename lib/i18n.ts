@@ -92,7 +92,13 @@ const en = {
   tooManySteps: 'Agent stopped after too many tool steps. Try fewer products.',
   quotaPause: (s: number) => `Free-tier pause, retrying in ${s}s…`,
   buildingTable: 'Building the decision table…',
+  copyrightYear: (year: number) => `© ${year}`,
+  copyrightName: 'Tianya Liu',
+  poweredBy: 'Powered by Gemini',
+  caveat: 'Prices and specs can change. Please verify before you buy.',
 };
+
+export type Copy = typeof en;
 
 const zh = {
   langName: '中文',
@@ -133,6 +139,10 @@ const zh = {
   tooManySteps: '工具步骤过多，已停止。请减少产品数量再试。',
   quotaPause: (s: number) => `免费额度暂停，${s} 秒后重试…`,
   buildingTable: '正在生成对比表…',
+  copyrightYear: (year: number) => `© ${year}`,
+  copyrightName: 'Tianya Liu',
+  poweredBy: '由 Gemini 提供支持',
+  caveat: '以上为公开信息快照，购买前请核对价格与规格。',
 };
 
 export const copy: Record<Locale, typeof en> = { en, zh };

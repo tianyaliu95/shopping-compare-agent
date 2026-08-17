@@ -15,8 +15,9 @@ export type CompareResult = {
   cells: Record<string, Record<string, CompareCell>>;
   wins?: Record<string, string>;
   pick: { name: string; reason: string };
-  caveat: string;
 };
+
+export type AgentStep = { id: string; name: string; input: string };
 
 export type AgentEvent =
   | { type: 'status'; text: string }
