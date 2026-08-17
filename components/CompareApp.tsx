@@ -1,38 +1,173 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import type { AgentEvent, CompareResult } from '@/lib/types';
+import { useEffect, useRef, useState } from 'react';
+import type { AgentEvent, CompareCell, CompareResult } from '@/lib/types';
 
-const EXAMPLES = [
+const TYPES = [
   {
     label: 'Headphones',
-    query: 'Sony WH-1000XM5 vs Bose QuietComfort Ultra vs Apple AirPods Max',
+    products: ['Sony WH-1000XM5', 'Bose QuietComfort Ultra', 'Apple AirPods Max'],
     preference: 'Budget around $400, prioritize noise cancelling',
   },
   {
     label: 'Keyboards',
-    query: 'Keychron Q1 Max vs Logitech MX Mechanical vs Nuphy Air75 V2',
+    products: ['Keychron Q1 Max', 'Logitech MX Mechanical', 'Nuphy Air75 V2'],
     preference: 'Mostly laptop use, want quiet typing',
   },
   {
     label: 'Monitors',
-    query: 'Dell U2723QE vs LG 27UP850 vs BenQ RD280U',
+    products: ['Dell U2723QE', 'LG 27UP850', 'BenQ RD280U'],
     preference: 'Coding all day, care about text clarity and USB-C',
   },
 ];
 
+const MIN_PRODUCTS = 2;
+const MAX_PRODUCTS = 4;
+
 type Step = { id: string; name: string; input: string };
 
+function SourceLink({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1.5 inline-block min-h-11 py-1 text-xs font-medium text-pine underline decoration-pine/30 underline-offset-4 hover:decoration-pine sm:min-h-0 sm:py-0"
+    >
+      Source
+    </a>
+  );
+}
+
+function CellBody({ cell }: { cell?: CompareCell }) {
+  return (
+    <>
+      <p className="leading-relaxed">{cell?.text || '—'}</p>
+      {cell?.source && <SourceLink href={cell.source} />}
+    </>
+  );
+}
+
+function isPick(product: string, pickName: string) {
+  const a = product.toLowerCase();
+  const b = pickName.toLowerCase();
+  return a === b || a.includes(b) || b.includes(a);
+}
+
+function WinMatrix({ result }: { result: CompareResult }) {
+  const wins = result.wins ?? {};
+  const rows = result.columns.filter((col) => wins[col]);
+  if (rows.length === 0) return null;
+
+  return (
+    <div className="mt-10">
+      <h3 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">Who wins</h3>
+      <p className="mt-1 text-sm text-ink-faint">Best on each criterion, given what you care about.</p>
+
+      <ul className="mt-4 divide-y divide-line rounded-3xl border border-line bg-white/55 md:hidden">
+        {rows.map((col) => (
+          <li key={col} className="flex items-baseline justify-between gap-4 px-4 py-3.5">
+            <span className="text-sm text-ink-muted">{col}</span>
+            <span className="text-right text-sm font-semibold text-ink">{wins[col]}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-4 hidden overflow-hidden rounded-3xl border border-line bg-white/55 md:block">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-line">
+              <th className="w-[8.5rem] px-4 py-3 text-left font-medium text-ink-faint"> </th>
+              {result.products.map((p) => (
+                <th key={p} className="px-3 py-3 text-center font-semibold leading-snug text-ink">
+                  {p}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((col) => (
+              <tr key={col} className="border-b border-line/80 last:border-b-0">
+                <th className="whitespace-nowrap px-4 py-3 text-left font-medium text-ink-muted">{col}</th>
+                {result.products.map((p) => {
+                  const won = isPick(p, wins[col]);
+                  return (
+                    <td key={`${p}-${col}`} className={`px-3 py-3 text-center ${won ? 'bg-mark/35' : ''}`}>
+                      {won ? (
+                        <svg
+                          viewBox="0 0 20 20"
+                          className="mx-auto size-5 text-pine"
+                          fill="none"
+                          aria-label="Win"
+                        >
+                          <path
+                            d="M4.5 10.5 8 14l7.5-8"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <span className="text-ink-faint">–</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export function CompareApp() {
-  const [query, setQuery] = useState(EXAMPLES[0].query);
-  const [preference, setPreference] = useState(EXAMPLES[0].preference);
+  const [products, setProducts] = useState(['', '', '']);
+  const [preference, setPreference] = useState('');
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
   const [result, setResult] = useState<CompareResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const loopRef = useRef<HTMLElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  const followRef = useRef(true);
+  const autoScrolling = useRef(false);
 
-  const columns = useMemo(() => result?.columns ?? [], [result]);
+  const filled = products.map((p) => p.trim()).filter(Boolean);
+  const query = filled.join(' vs ');
+
+  useEffect(() => {
+    function onScroll() {
+      if (autoScrolling.current) return;
+      const remaining =
+        document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+      followRef.current = remaining < 180;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!followRef.current) return;
+    if (!busy && !status && steps.length === 0 && !result && !error) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    autoScrolling.current = true;
+    const id = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        endRef.current?.scrollIntoView({
+          behavior: reduce ? 'auto' : 'smooth',
+          block: 'end',
+        });
+        window.setTimeout(() => {
+          autoScrolling.current = false;
+        }, reduce ? 50 : 450);
+      });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [busy, status, steps, result, error]);
 
   async function run() {
     if (busy) return;
@@ -41,6 +176,7 @@ export function CompareApp() {
     setResult(null);
     setSteps([]);
     setStatus('Starting agent…');
+    followRef.current = true;
 
     try {
       const res = await fetch('/api/compare', {
@@ -101,140 +237,301 @@ export function CompareApp() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
-      <header className="max-w-2xl">
-        <p className="text-sm font-medium tracking-wide text-amber-800">Research agent</p>
-        <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-          Shop Compare
+    <div className="page-shell mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-12 lg:px-8">
+      {busy && (
+        <div className="fixed inset-x-0 top-0 z-30 h-0.5 overflow-hidden bg-pine/15" aria-hidden>
+          <div className="progress-bar h-full w-full bg-pine" />
+        </div>
+      )}
+
+      <header className="rise relative pb-2">
+        <div className="vs-mark" aria-hidden>
+          vs
+        </div>
+        <p className="relative text-xs font-semibold uppercase tracking-[0.18em] text-pine">
+          Research agent
+        </p>
+        <h1 className="relative mt-3 max-w-[14ch] font-display text-[2.5rem] font-extrabold leading-[1.06] tracking-[-0.03em] text-ink sm:text-6xl lg:text-[4.25rem]">
+          Compare
+          <span className="block">Agent</span>
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-ink-muted">
-          Drop in 2–4 products. The agent plans criteria, searches public pages, and returns a
-          sourced table — not a generic chatbot dump.
+        <p className="relative mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink-muted sm:mt-5 sm:text-lg">
+          Paste 2–4 products. The agent plans criteria, reads public sources, and returns a sourced pick.
         </p>
       </header>
 
-      <section className="mt-8 rounded-3xl border border-ink/10 bg-white/80 p-5 shadow-soft sm:p-6">
-        <div className="flex flex-wrap gap-2">
-          {EXAMPLES.map((ex) => (
+      <section className="rise-delay relative mt-8 sm:mt-10" aria-label="Start a comparison">
+        <form
+          className="relative max-w-3xl"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void run();
+          }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine">Try a type</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {TYPES.map((item) => {
+              const selected =
+                products.length === item.products.length &&
+                products.every((p, i) => p === item.products[i]) &&
+                preference === item.preference;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => {
+                    setProducts([...item.products]);
+                    setPreference(item.preference);
+                  }}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    selected
+                      ? 'bg-pine text-paper-2'
+                      : 'bg-white/55 text-ink-muted hover:bg-white/90 hover:text-ink'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
             <button
-              key={ex.label}
               type="button"
               onClick={() => {
-                setQuery(ex.query);
-                setPreference(ex.preference);
+                setProducts(['', '', '']);
+                setPreference('');
               }}
-              className="rounded-full border border-ink/10 bg-paper px-3 py-1.5 text-sm font-medium text-ink-muted transition hover:border-ink/20 hover:text-ink"
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                filled.length === 0 && preference.trim() === ''
+                  ? 'bg-pine text-paper-2'
+                  : 'bg-white/55 text-ink-muted hover:bg-white/90 hover:text-ink'
+              }`}
             >
-              {ex.label}
+              Your own
             </button>
-          ))}
-        </div>
+          </div>
 
-        <label className="mt-5 block text-sm font-medium text-ink">
-          Products
-          <textarea
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            rows={3}
-            className="mt-1.5 w-full resize-y rounded-2xl border border-ink/10 bg-paper px-3.5 py-3 text-sm text-ink outline-none ring-amber-700/20 focus:ring-2"
-          />
-        </label>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(15rem,0.85fr)] lg:items-stretch">
+            <div>
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-sm font-medium text-ink">Products</p>
+                <p className="text-xs text-ink-faint">
+                  {filled.length} of {MAX_PRODUCTS}
+                </p>
+              </div>
+              <ul className="mt-3 space-y-2.5">
+                {products.map((name, i) => (
+                  <li key={i} className="relative">
+                    <input
+                      value={name}
+                      onChange={(e) => {
+                        const next = [...products];
+                        next[i] = e.target.value;
+                        setProducts(next);
+                      }}
+                      autoComplete="off"
+                      placeholder={`Product ${i + 1}`}
+                      className="field min-h-12 pr-12"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove product"
+                      disabled={products.length <= MIN_PRODUCTS}
+                      onClick={() => {
+                        if (products.length <= MIN_PRODUCTS) return;
+                        setProducts(products.filter((_, idx) => idx !== i));
+                      }}
+                      className="icon-btn absolute right-1.5 top-1/2 -translate-y-1/2"
+                    >
+                      −
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                disabled={products.length >= MAX_PRODUCTS}
+                onClick={() => {
+                  if (products.length >= MAX_PRODUCTS) return;
+                  setProducts([...products, '']);
+                }}
+                className="mt-3 text-sm font-medium text-pine transition hover:text-pine-deep disabled:opacity-30"
+              >
+                + Add product
+              </button>
+            </div>
 
-        <label className="mt-4 block text-sm font-medium text-ink">
-          What matters to you
-          <input
-            value={preference}
-            onChange={(e) => setPreference(e.target.value)}
-            className="mt-1.5 w-full rounded-2xl border border-ink/10 bg-paper px-3.5 py-3 text-sm text-ink outline-none ring-amber-700/20 focus:ring-2"
-          />
-        </label>
+            <label className="flex flex-col text-sm font-medium text-ink">
+              What matters
+              <textarea
+                value={preference}
+                onChange={(e) => setPreference(e.target.value)}
+                autoComplete="off"
+                placeholder="Budget, noise cancelling, who it’s for…"
+                className="field mt-3 min-h-[7.5rem] resize-none lg:min-h-[12rem] lg:flex-1"
+              />
+            </label>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => void run()}
-          disabled={busy || query.trim().length < 3}
-          className="mt-5 rounded-2xl bg-ink px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:opacity-50"
-        >
-          {busy ? 'Researching…' : 'Compare'}
-        </button>
+          <button
+            type="submit"
+            disabled={busy || filled.length < MIN_PRODUCTS}
+            className="mt-8 min-h-12 w-full rounded-2xl bg-pine px-8 text-sm font-semibold tracking-wide text-paper-2 transition hover:bg-pine-deep disabled:opacity-45 sm:w-auto sm:min-w-[10.5rem]"
+          >
+            {busy ? 'Researching…' : 'Compare'}
+          </button>
+        </form>
       </section>
 
-      {(status || steps.length > 0) && (
-        <section className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-            Agent loop
-          </h2>
-          <ol className="mt-3 space-y-2">
-            {steps.map((step) => (
-              <li
-                key={step.id}
-                className="rounded-2xl border border-ink/8 bg-white/70 px-4 py-3 text-sm"
-              >
-                <span className="font-mono text-xs font-semibold text-amber-800">{step.name}</span>
-                <p className="mt-1 truncate text-ink-muted">{step.input}</p>
-              </li>
-            ))}
-          </ol>
-          {status && <p className="mt-3 text-sm text-ink-muted">{status}</p>}
-        </section>
-      )}
+      <section
+        ref={loopRef}
+        className="relative mt-12 scroll-mt-6 sm:mt-16"
+        aria-live="polite"
+        aria-busy={busy}
+      >
+        {(status || steps.length > 0) && (
+          <>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+                Agent loop
+              </h2>
+              {status && (
+                <p className="flex items-center gap-2 text-sm text-ink-muted">
+                  {busy && (
+                    <span className="live-dot inline-block size-1.5 rounded-[1px] bg-pine" aria-hidden />
+                  )}
+                  {status}
+                </p>
+              )}
+            </div>
+
+            <ol className="mt-5 max-w-3xl border-l border-line">
+              {steps.map((step, i) => (
+                <li key={step.id} className="step-in relative py-3 pl-5 sm:py-3.5 sm:pl-6">
+                  <span className="absolute -left-1 top-5 size-2 bg-pine" aria-hidden />
+                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-pine">
+                    {String(i + 1).padStart(2, '0')} · {step.name}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted">{step.input}</p>
+                </li>
+              ))}
+              {busy && steps.length === 0 && (
+                <li className="py-3 pl-5 text-sm text-ink-muted sm:pl-6">Planning comparison dimensions…</li>
+              )}
+            </ol>
+          </>
+        )}
+      </section>
 
       {error && (
-        <p className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="reveal mt-8 border-l-2 border-red-700 pl-4 text-sm leading-relaxed text-red-800" role="alert">
           {error}
         </p>
       )}
 
       {result && (
-        <section className="mt-10">
-          <div className="rounded-3xl border border-amber-800/15 bg-amber-50/80 px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-900">Pick</p>
-            <p className="mt-1 text-lg font-semibold text-ink">{result.pick.name}</p>
-            <p className="mt-1 text-sm text-ink-muted">{result.pick.reason}</p>
+        <section className="reveal mt-12 sm:mt-16">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-pine">Recommendation</p>
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            {result.pick.name}
+          </h2>
+          <p className="mt-3 max-w-2xl border-l-[3px] border-mark pl-4 text-sm leading-relaxed text-ink-muted sm:pl-5 sm:text-base">
+            {result.pick.reason}
+          </p>
+
+          <WinMatrix result={result} />
+
+          <div className="mt-10 flex items-end justify-between gap-4">
+            <h3 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+              Decision table
+            </h3>
+            <p className="hidden text-sm text-ink-faint md:block">Each cell links to a source.</p>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-3xl border border-ink/10 bg-white shadow-soft">
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-ink/10 bg-paper">
-                  <th className="px-4 py-3 font-semibold text-ink"> </th>
-                  {result.products.map((p) => (
-                    <th key={p} className="px-4 py-3 font-semibold text-ink">
-                      {p}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {columns.map((col) => (
-                  <tr key={col} className="border-b border-ink/5 align-top">
-                    <th className="whitespace-nowrap px-4 py-3 font-medium text-ink-muted">{col}</th>
-                    {result.products.map((p) => {
-                      const cell = result.cells[p]?.[col];
-                      return (
-                        <td key={`${p}-${col}`} className="px-4 py-3 text-ink">
-                          <p>{cell?.text || '—'}</p>
-                          {cell?.source && (
-                            <a
-                              href={cell.source}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="mt-1 inline-block text-xs text-amber-800 underline-offset-2 hover:underline"
-                            >
-                              source
-                            </a>
+          <div className="mt-4 space-y-3 md:hidden">
+            {result.columns.map((col) => (
+              <div key={col} className="rounded-3xl border border-line bg-white/55 px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-pine">{col}</p>
+                <ul className="mt-3 divide-y divide-line">
+                  {result.products.map((p) => {
+                    const picked = isPick(p, result.pick.name);
+                    const cell = result.cells[p]?.[col];
+                    return (
+                      <li key={p} className="py-3 first:pt-0 last:pb-0">
+                        <div className="flex items-baseline justify-between gap-3">
+                          <p className="text-sm font-semibold text-ink">{p}</p>
+                          {picked && (
+                            <span className="shrink-0 text-[11px] font-medium uppercase tracking-[0.12em] text-pine">
+                              Pick
+                            </span>
                           )}
-                        </td>
+                        </div>
+                        <div className={`mt-1.5 text-sm text-ink ${picked ? '' : 'text-ink'}`}>
+                          <CellBody cell={cell} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 hidden overflow-hidden rounded-3xl border border-line bg-white/55 md:block">
+            <div className="table-scroll" tabIndex={0} aria-label="Comparison table">
+              <table className="min-w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line">
+                    <th className="sticky-col sticky-col-head min-w-[7.25rem] py-3 pl-4 pr-3 font-medium text-ink-faint">
+                      Spec
+                    </th>
+                    {result.products.map((p) => {
+                      const picked = isPick(p, result.pick.name);
+                      return (
+                        <th
+                          key={p}
+                          className={`min-w-[11rem] px-4 py-3 font-semibold leading-snug sm:min-w-[13rem] ${
+                            picked ? 'bg-mark/35 text-ink' : 'text-ink'
+                          }`}
+                        >
+                          {p}
+                          {picked && (
+                            <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-pine">
+                              Pick
+                            </span>
+                          )}
+                        </th>
                       );
                     })}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {result.columns.map((col) => (
+                    <tr key={col} className="border-b border-line/80 align-top last:border-b-0">
+                      <th className="sticky-col whitespace-nowrap py-3.5 pl-4 pr-3 text-left font-medium text-ink-muted">
+                        {col}
+                      </th>
+                      {result.products.map((p) => {
+                        const cell = result.cells[p]?.[col];
+                        const picked = isPick(p, result.pick.name);
+                        return (
+                          <td
+                            key={`${p}-${col}`}
+                            className={`px-4 py-3.5 text-ink ${picked ? 'bg-mark/20' : ''}`}
+                          >
+                            <p className="max-w-[16rem] leading-relaxed">{cell?.text || '—'}</p>
+                            {cell?.source && <SourceLink href={cell.source} />}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <p className="mt-4 text-xs text-ink-faint">{result.caveat}</p>
+          <p className="mt-4 max-w-2xl text-xs leading-relaxed text-ink-faint">{result.caveat}</p>
         </section>
       )}
+      <div ref={endRef} className="h-px" aria-hidden />
     </div>
   );
 }

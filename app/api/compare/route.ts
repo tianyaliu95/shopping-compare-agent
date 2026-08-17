@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   const query = typeof body.query === 'string' ? body.query.trim().slice(0, 800) : '';
   const preference =
-    typeof body.preference === 'string' ? body.preference.trim().slice(0, 240) : '';
+    typeof body.preference === 'string' ? body.preference.trim().slice(0, 600) : '';
   if (query.length < 3) {
     return Response.json({ error: 'Describe 2–4 products to compare.' }, { status: 400 });
   }

@@ -13,6 +13,7 @@ Rules:
 - 2–4 products. Columns should be comparable (price, key specs, who it's for, notable cons).
 - Prices: include currency and note they may be stale.
 - Keep the loop short for a live demo: call several tools in the SAME turn, at most 2 searches and 3 page fetches total, then return JSON.
+- For each comparison column, pick exactly one winner: the product that is best on that dimension given the shopper's preference. If a column is unknown or a true tie, omit it from wins.
 - When ready, output ONLY JSON (no markdown) matching:
 {
   "products": ["A","B"],
@@ -20,6 +21,7 @@ Rules:
   "cells": {
     "A": { "Price": { "text": "$348", "source": "https://..." } }
   },
+  "wins": { "Price": "A", "Weight": "B" },
   "pick": { "name": "A", "reason": "one short sentence tied to the user's preference" },
   "caveat": "Prices/specs can change; verify before buying."
 }`;
@@ -75,6 +77,9 @@ function parseResult(raw: string): CompareResult {
   const data = JSON.parse(trimmed.slice(start, end + 1)) as CompareResult;
   if (!Array.isArray(data.products) || !Array.isArray(data.columns) || !data.cells || !data.pick) {
     throw new Error('Incomplete comparison JSON.');
+  }
+  if (!data.wins || typeof data.wins !== 'object' || Array.isArray(data.wins)) {
+    data.wins = {};
   }
   return data;
 }

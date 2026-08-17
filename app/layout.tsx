@@ -1,24 +1,40 @@
-import type { Metadata } from 'next';
-import { Outfit } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Figtree, Syne } from 'next/font/google';
 import './globals.css';
 
-const outfit = Outfit({
+const syne = Syne({
   subsets: ['latin'],
-  weight: ['600', '700'],
+  weight: ['700', '800'],
   variable: '--font-display',
   display: 'swap',
 });
 
+const figtree = Figtree({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-body',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  title: 'Shop Compare — product research agent',
+  title: 'Compare Agent — sourced shopping research',
   description:
-    'A multi-step shopping agent that plans comparison criteria, searches public sources, and returns a sourced decision table.',
+    'Paste 2–4 products. The agent plans criteria, searches public sources, and returns a sourced decision table.',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#e4ebe6',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} min-h-screen font-sans antialiased`}>{children}</body>
+      <body className={`${syne.variable} ${figtree.variable} min-h-dvh font-body antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -12,6 +12,7 @@ export type CompareResult = {
   products: string[];
   columns: string[];
   cells: Record<string, Record<string, CompareCell>>;
+  wins?: Record<string, string>;
   pick: { name: string; reason: string };
   caveat: string;
 };
