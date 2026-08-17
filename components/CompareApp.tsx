@@ -132,6 +132,7 @@ export function CompareApp() {
   const [result, setResult] = useState<CompareResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const loopRef = useRef<HTMLElement>(null);
+  const resultRef = useRef<HTMLElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const followRef = useRef(true);
   const autoScrolling = useRef(false);
@@ -151,16 +152,23 @@ export function CompareApp() {
   }, []);
 
   useEffect(() => {
-    if (!followRef.current) return;
     if (!busy && !status && steps.length === 0 && !result && !error) return;
+    if (!result && !followRef.current) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     autoScrolling.current = true;
     const id = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        endRef.current?.scrollIntoView({
-          behavior: reduce ? 'auto' : 'smooth',
-          block: 'end',
-        });
+        if (result) {
+          resultRef.current?.scrollIntoView({
+            behavior: reduce ? 'auto' : 'smooth',
+            block: 'start',
+          });
+        } else {
+          endRef.current?.scrollIntoView({
+            behavior: reduce ? 'auto' : 'smooth',
+            block: 'end',
+          });
+        }
         window.setTimeout(() => {
           autoScrolling.current = false;
         }, reduce ? 50 : 450);
@@ -428,7 +436,7 @@ export function CompareApp() {
       )}
 
       {result && (
-        <section className="reveal mt-12 sm:mt-16">
+        <section ref={resultRef} className="reveal mt-12 scroll-mt-6 sm:mt-16">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-pine">Recommendation</p>
           <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             {result.pick.name}
