@@ -7,9 +7,14 @@ export const maxDuration = 90;
 
 export async function POST(req: Request) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
-  let body: { query?: string; preference?: string; locale?: string };
+  let body: { query?: string; products?: unknown; preference?: string; locale?: string };
   try {
-    body = (await req.json()) as { query?: string; preference?: string; locale?: string };
+    body = (await req.json()) as {
+      query?: string;
+      products?: unknown;
+      preference?: string;
+      locale?: string;
+    };
   } catch {
     return Response.json({ error: copy.en.invalidJson }, { status: 400 });
   }
@@ -21,10 +26,22 @@ export async function POST(req: Request) {
     return Response.json({ error: t.missingKey }, { status: 503 });
   }
 
-  const query = typeof body.query === 'string' ? body.query.trim().slice(0, 800) : '';
+  const products = Array.isArray(body.products)
+    ? body.products
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => item.trim().slice(0, 1000))
+        .filter(Boolean)
+        .slice(0, 4)
+    : typeof body.query === 'string'
+      ? body.query
+          .split(/\s+vs\s+|\n/)
+          .map((item) => item.trim().slice(0, 1000))
+          .filter(Boolean)
+          .slice(0, 4)
+      : [];
   const preference =
     typeof body.preference === 'string' ? body.preference.trim().slice(0, 600) : '';
-  if (query.length < 3) {
+  if (products.length < 2) {
     return Response.json({ error: t.needProducts }, { status: 400 });
   }
 
@@ -37,7 +54,7 @@ export async function POST(req: Request) {
       try {
         await runCompareAgent({
           apiKey,
-          query,
+          products,
           preference,
           locale,
           onEvent: send,

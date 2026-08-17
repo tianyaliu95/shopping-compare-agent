@@ -24,7 +24,7 @@ export function useCompareRun(t: Copy) {
   const [result, setResult] = useState<CompareResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function run(input: { query: string; preference: string; locale: Locale }) {
+  async function run(input: { products: string[]; preference: string; locale: Locale }) {
     if (busy) return;
     setBusy(true);
     setError(null);

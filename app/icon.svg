@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="vs">
+  <rect width="64" height="64" rx="14" fill="#e4ebe6" />
+  <text
+    x="32"
+    y="32"
+    text-anchor="middle"
+    dominant-baseline="central"
+    textLength="56"
+    lengthAdjust="spacingAndGlyphs"
+    font-family="Syne, 'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="27"
+    font-weight="800"
+    fill="#93b1a2"
+  >VS</text>
+</svg>

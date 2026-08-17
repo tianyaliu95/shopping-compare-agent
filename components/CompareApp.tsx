@@ -52,7 +52,7 @@ export function CompareApp() {
   return (
     <div className="page-shell mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-12 lg:px-8">
       {busy && (
-        <div className="fixed inset-x-0 top-0 z-30 h-0.5 overflow-hidden bg-pine/15" aria-hidden>
+        <div className="fixed inset-x-0 top-0 z-30 h-1 overflow-hidden bg-pine/15" aria-hidden>
           <div className="progress-bar h-full w-full bg-pine" />
         </div>
       )}
@@ -70,7 +70,7 @@ export function CompareApp() {
         onPreference={setPreference}
         onSubmit={() => {
           resetFollow();
-          void run({ query: filled.join(' vs '), preference, locale });
+          void run({ products: filled, preference, locale });
         }}
       />
 

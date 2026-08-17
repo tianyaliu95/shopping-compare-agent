@@ -1,25 +1,31 @@
-import { runTool } from './tools';
+import { fetchPage, runTool } from './tools';
 import type { AgentEvent, CompareResult } from './types';
 import { copy, type Locale } from './i18n';
+import { amazonAsin, parseProductList, type ProductInput } from './productInput';
 
 export const GEMINI_MODEL =
   process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
 
-function systemPrompt(locale: Locale) {
+function systemPrompt(locale: Locale, hasUrls: boolean) {
   const lang =
     locale === 'zh'
       ? 'Write columns, cell text, pick.reason, and wins values in Simplified Chinese. Keep product names in their original form.'
       : 'Write columns, cell text, pick.reason, and wins values in English.';
+  const urlRule = hasUrls
+    ? `- Products may be names, Amazon/official URLs, or both. If a fetched page is included, use it as the primary source and cite that URL. If a fetch failed, web_search the name or Amazon ASIN. Never use a raw URL as the display name — use the real product name from the page.`
+    : `- Prefer official spec pages, major retailers, and reputable reviews.`;
+  const extraFetches = hasUrls ? 2 : 3;
   return `You are a shopping research agent. Compare consumer products using tools, then return a sourced decision table.
 
 Rules:
 - Use web_search and fetch_page. Do not invent prices or specs.
 - If a fact is missing, write "unknown" and skip a fake source.
-- Prefer official spec pages, major retailers, and reputable reviews.
+- ${urlRule}
 - 2–4 products. Columns should be comparable (price, key specs, who it's for, notable cons).
 - Prices: include currency and note they may be stale.
-- Keep the loop short for a live demo: call several tools in the SAME turn, at most 2 searches and 3 page fetches total, then return JSON.
+- Keep the loop short for a live demo: call several tools in the SAME turn, at most 2 searches and ${extraFetches} extra page fetches total, then return JSON.
 - For each comparison column, pick exactly one winner: the product that is best on that dimension given the shopper's preference. If a column is unknown or a true tie, omit it from wins.
+- JSON products[] and pick.name must be human product names, never URLs.
 - ${lang}
 - When ready, output ONLY JSON (no markdown) matching:
 {
@@ -49,7 +55,8 @@ const TOOLS = [
       },
       {
         name: 'fetch_page',
-        description: 'Fetch a public https page and return cleaned text. Use after search to read a specific source.',
+        description:
+          'Fetch a public https page and return cleaned text. Use for Amazon listings, official product pages, and sources found via search.',
         parameters: {
           type: 'OBJECT',
           properties: {
@@ -106,12 +113,13 @@ async function geminiTurn(
   apiKey: string,
   contents: Content[],
   onEvent: (e: AgentEvent) => void,
-  locale: Locale
+  locale: Locale,
+  hasUrls: boolean
 ): Promise<Part[]> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
   const t = copy[locale];
   const body = JSON.stringify({
-    systemInstruction: { parts: [{ text: systemPrompt(locale) }] },
+    systemInstruction: { parts: [{ text: systemPrompt(locale, hasUrls) }] },
     contents,
     tools: TOOLS,
     generationConfig: {
@@ -145,29 +153,89 @@ async function geminiTurn(
   throw new Error(lastError);
 }
 
+function formatProductBlock(index: number, item: ProductInput, page?: string) {
+  const lines = [`Product ${index}:`];
+  if (item.name) lines.push(`- Name: ${item.name}`);
+  if (item.url) {
+    lines.push(`- URL: ${item.url}`);
+    const asin = amazonAsin(item.url);
+    if (asin) lines.push(`- Amazon ASIN: ${asin}`);
+    if (page) {
+      lines.push('- Fetched page (primary source — cite this URL):');
+      lines.push(page.slice(0, 2800));
+    }
+  }
+  return lines.join('\n');
+}
+
+async function prefetchProductPages(
+  items: ProductInput[],
+  onEvent: (e: AgentEvent) => void
+) {
+  const pages = new Map<string, string>();
+  const withUrls = items.filter((item) => item.url);
+  await Promise.all(
+    withUrls.map(async (item) => {
+      const url = item.url!;
+      onEvent({ type: 'tool', name: 'fetch_page', input: url });
+      try {
+        pages.set(url, await fetchPage(url));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Fetch failed';
+        pages.set(url, `Tool error: ${message}`);
+      }
+    })
+  );
+  return pages;
+}
+
 export async function runCompareAgent(opts: {
   apiKey: string;
-  query: string;
+  query?: string;
+  products?: string[];
   preference?: string;
   locale?: Locale;
   onEvent: (e: AgentEvent) => void;
 }) {
-  const { apiKey, query, preference, onEvent } = opts;
+  const { apiKey, preference, onEvent } = opts;
   const locale: Locale = opts.locale === 'zh' ? 'zh' : 'en';
   const t = copy[locale];
+  const rawProducts =
+    opts.products?.map((p) => p.trim()).filter(Boolean) ??
+    (opts.query
+      ? opts.query
+          .split(/\s+vs\s+|\n/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : []);
+  const items = parseProductList(rawProducts);
+  const hasUrls = items.some((item) => Boolean(item.url));
+
+  let pages = new Map<string, string>();
+  if (hasUrls) {
+    onEvent({ type: 'status', text: t.readingPages });
+    pages = await prefetchProductPages(items, onEvent);
+  }
+
+  const productBlock = items
+    .map((item, i) => formatProductBlock(i + 1, item, item.url ? pages.get(item.url) : undefined))
+    .join('\n\n');
+
   const user = [
-    `Compare these products:\n${query.trim()}`,
+    `Compare these products:\n\n${productBlock}`,
     preference?.trim()
       ? `Shopper preference: ${preference.trim()}`
       : 'No extra preference. Recommend the best overall value.',
-    'Research with a short tool loop, then return the JSON table.',
+    hasUrls
+      ? 'Pages for pasted URLs are already fetched. Search only for name-only products or missing facts, then return the JSON table.'
+      : 'Research with a short tool loop, then return the JSON table.',
   ].join('\n\n');
 
   const contents: Content[] = [{ role: 'user', parts: [{ text: user }] }];
   onEvent({ type: 'status', text: t.planning });
 
   for (let round = 0; round < 5; round++) {
-    const parts = await geminiTurn(apiKey, contents, onEvent, locale);
+    const parts = await geminiTurn(apiKey, contents, onEvent, locale, hasUrls);
     const calls = parts.filter((p) => p.functionCall?.name);
     const text = parts
       .filter((p) => p.text && !p.thought)

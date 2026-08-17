@@ -79,7 +79,8 @@ export function CompareForm({
                 <p className="text-sm font-medium text-ink">{t.products}</p>
                 <p className="text-xs text-ink-faint">{t.ofMax(filled.length, MAX_PRODUCTS)}</p>
               </div>
-              <ul className="mt-3 space-y-2.5">
+              <p className="mt-1 text-xs leading-relaxed text-ink-faint">{t.productHint}</p>
+              <ul className="mt-2 space-y-2.5">
                 {products.map((name, i) => (
                   <li key={i} className="relative">
                     <input
@@ -90,6 +91,9 @@ export function CompareForm({
                         onProducts(next);
                       }}
                       autoComplete="off"
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      spellCheck={false}
                       placeholder={t.productPlaceholder(i + 1)}
                       className="field min-h-12 pr-12"
                     />
@@ -125,13 +129,14 @@ export function CompareForm({
               <label htmlFor="preference-field" className="flex min-h-5 items-center text-sm font-medium text-ink">
                 {t.whatMatters}
               </label>
+              <p className="mt-1 text-xs leading-relaxed text-ink-faint">{t.whatMattersHint}</p>
               <textarea
                 id="preference-field"
                 value={preference}
                 onChange={(e) => onPreference(e.target.value)}
                 autoComplete="off"
                 placeholder={t.whatMattersPlaceholder}
-                className="field mt-3 min-h-[7.5rem] flex-1 resize-none lg:min-h-0"
+                className="field mt-2 min-h-[7.5rem] flex-1 resize-none lg:min-h-0"
               />
             </div>
           </div>

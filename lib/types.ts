@@ -1,5 +1,6 @@
 export type CompareRequest = {
-  query: string;
+  products?: string[];
+  query?: string;
   preference?: string;
   locale?: 'en' | 'zh';
 };
