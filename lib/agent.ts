@@ -2,7 +2,7 @@ import { runTool } from './tools';
 import type { AgentEvent, CompareResult } from './types';
 
 export const GEMINI_MODEL =
-  process.env.GEMINI_MODEL?.trim() || 'gemini-flash-latest';
+  process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
 
 const SYSTEM = `You are a shopping research agent. Compare consumer products using tools, then return a sourced decision table.
 
@@ -12,6 +12,7 @@ Rules:
 - Prefer official spec pages, major retailers, and reputable reviews.
 - 2–4 products. Columns should be comparable (price, key specs, who it's for, notable cons).
 - Prices: include currency and note they may be stale.
+- Keep the loop short for a live demo: call several tools in the SAME turn, at most 2 searches and 3 page fetches total, then return JSON.
 - When ready, output ONLY JSON (no markdown) matching:
 {
   "products": ["A","B"],
@@ -78,27 +79,56 @@ function parseResult(raw: string): CompareResult {
   return data;
 }
 
-async function geminiTurn(apiKey: string, contents: Content[]): Promise<Part[]> {
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function quotaRetryMs(message: string): number | null {
+  if (!/quota|rate.?limit|429|resource has been exhausted/i.test(message)) return null;
+  const match = message.match(/retry in ([0-9.]+)\s*s/i);
+  const seconds = match ? Number(match[1]) : 8;
+  return Math.min(Math.ceil(seconds * 1000) + 400, 20_000);
+}
+
+async function geminiTurn(
+  apiKey: string,
+  contents: Content[],
+  onEvent: (e: AgentEvent) => void
+): Promise<Part[]> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM }] },
-      contents,
-      tools: TOOLS,
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 2048,
-        thinkingConfig: { thinkingLevel: 'minimal' },
-      },
-    }),
+  const body = JSON.stringify({
+    systemInstruction: { parts: [{ text: SYSTEM }] },
+    contents,
+    tools: TOOLS,
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   });
-  const json = (await res.json()) as GeminiResponse;
-  if (!res.ok || json.error?.message) {
-    throw new Error(json.error?.message || `Gemini HTTP ${res.status}`);
+
+  let lastError = 'Gemini request failed';
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    const json = (await res.json()) as GeminiResponse;
+    if (res.ok && !json.error?.message) {
+      return json.candidates?.[0]?.content?.parts || [];
+    }
+
+    lastError = json.error?.message || `Gemini HTTP ${res.status}`;
+    const waitMs = quotaRetryMs(lastError);
+    if (waitMs == null || attempt === 2) break;
+    onEvent({
+      type: 'status',
+      text: `Free-tier pause, retrying in ${Math.ceil(waitMs / 1000)}s…`,
+    });
+    await sleep(waitMs);
   }
-  return json.candidates?.[0]?.content?.parts || [];
+  throw new Error(lastError);
 }
 
 export async function runCompareAgent(
@@ -108,14 +138,14 @@ export async function runCompareAgent(
   const user = [
     `Compare these products:\n${query.trim()}`,
     preference?.trim() ? `Shopper preference: ${preference.trim()}` : 'No extra preference. Recommend the best overall value.',
-    'Research with tools, then return the JSON table.',
+    'Research with a short tool loop, then return the JSON table.',
   ].join('\n\n');
 
   const contents: Content[] = [{ role: 'user', parts: [{ text: user }] }];
   onEvent({ type: 'status', text: 'Planning comparison dimensions…' });
 
-  for (let round = 0; round < 8; round++) {
-    const parts = await geminiTurn(apiKey, contents);
+  for (let round = 0; round < 5; round++) {
+    const parts = await geminiTurn(apiKey, contents, onEvent);
     const calls = parts.filter((p) => p.functionCall?.name);
     const text = parts
       .filter((p) => p.text && !p.thought)
@@ -130,17 +160,18 @@ export async function runCompareAgent(
     }
 
     contents.push({ role: 'model', parts });
-    const toolParts: Part[] = [];
-    for (const part of calls) {
-      const name = part.functionCall!.name as string;
-      const args = (part.functionCall!.args || {}) as Record<string, unknown>;
-      const input = String(args.query || args.url || JSON.stringify(args));
-      onEvent({ type: 'tool', name, input });
-      const result = await runTool(name, args);
-      toolParts.push({
-        functionResponse: { name, response: { result: result.slice(0, 6000) } },
-      });
-    }
+    const toolParts = await Promise.all(
+      calls.map(async (part) => {
+        const name = part.functionCall!.name as string;
+        const args = (part.functionCall!.args || {}) as Record<string, unknown>;
+        const input = String(args.query || args.url || JSON.stringify(args));
+        onEvent({ type: 'tool', name, input });
+        const result = await runTool(name, args);
+        return {
+          functionResponse: { name, response: { result: result.slice(0, 4000) } },
+        };
+      })
+    );
     contents.push({ role: 'user', parts: toolParts });
   }
 

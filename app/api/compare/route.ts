@@ -2,7 +2,7 @@ import { runCompareAgent } from '@/lib/agent';
 import type { AgentEvent } from '@/lib/types';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 export async function POST(req: Request) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
