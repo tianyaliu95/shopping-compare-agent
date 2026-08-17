@@ -300,7 +300,7 @@ export function CompareApp() {
 
       <section className="rise-delay relative mt-8 sm:mt-10" aria-label={t.startAComparison}>
         <form
-          className="relative max-w-3xl"
+          className="relative max-w-3xl lg:max-w-4xl"
           onSubmit={(e) => {
             e.preventDefault();
             void run();
@@ -347,64 +347,80 @@ export function CompareApp() {
             </button>
           </div>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(15rem,0.85fr)] lg:items-stretch">
-            <div>
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-sm font-medium text-ink">{t.products}</p>
-                <p className="text-xs text-ink-faint">{t.ofMax(filled.length, MAX_PRODUCTS)}</p>
+          <div className="mt-8">
+            <div className="grid lg:grid-cols-[26.5rem_minmax(0,1fr)] lg:items-stretch lg:gap-x-8">
+              <div className="flex flex-col">
+                <div className="flex min-h-5 items-baseline justify-between gap-3">
+                  <p className="text-sm font-medium text-ink">{t.products}</p>
+                  <p className="text-xs text-ink-faint">{t.ofMax(filled.length, MAX_PRODUCTS)}</p>
+                </div>
+                <ul className="mt-3 space-y-2.5">
+                  {products.map((name, i) => (
+                    <li key={i} className="relative">
+                      <input
+                        value={name}
+                        onChange={(e) => {
+                          const next = [...products];
+                          next[i] = e.target.value;
+                          setProducts(next);
+                        }}
+                        autoComplete="off"
+                        placeholder={t.productPlaceholder(i + 1)}
+                        className="field min-h-12 pr-12"
+                      />
+                      <button
+                        type="button"
+                        aria-label={t.removeProduct}
+                        disabled={products.length <= MIN_PRODUCTS}
+                        onClick={() => {
+                          if (products.length <= MIN_PRODUCTS) return;
+                          setProducts(products.filter((_, idx) => idx !== i));
+                        }}
+                        className="icon-btn absolute right-1.5 top-1/2 -translate-y-1/2"
+                      >
+                        −
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  disabled={products.length >= MAX_PRODUCTS}
+                  onClick={() => {
+                    if (products.length >= MAX_PRODUCTS) return;
+                    setProducts([...products, '']);
+                  }}
+                  className="mt-3 self-start text-sm font-medium text-pine transition hover:text-pine-deep disabled:opacity-30 lg:hidden"
+                >
+                  {t.addProduct}
+                </button>
               </div>
-              <ul className="mt-3 space-y-2.5">
-                {products.map((name, i) => (
-                  <li key={i} className="relative">
-                    <input
-                      value={name}
-                      onChange={(e) => {
-                        const next = [...products];
-                        next[i] = e.target.value;
-                        setProducts(next);
-                      }}
-                      autoComplete="off"
-                      placeholder={t.productPlaceholder(i + 1)}
-                      className="field min-h-12 pr-12"
-                    />
-                    <button
-                      type="button"
-                      aria-label={t.removeProduct}
-                      disabled={products.length <= MIN_PRODUCTS}
-                      onClick={() => {
-                        if (products.length <= MIN_PRODUCTS) return;
-                        setProducts(products.filter((_, idx) => idx !== i));
-                      }}
-                      className="icon-btn absolute right-1.5 top-1/2 -translate-y-1/2"
-                    >
-                      −
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                disabled={products.length >= MAX_PRODUCTS}
-                onClick={() => {
-                  if (products.length >= MAX_PRODUCTS) return;
-                  setProducts([...products, '']);
-                }}
-                className="mt-3 text-sm font-medium text-pine transition hover:text-pine-deep disabled:opacity-30"
-              >
-                {t.addProduct}
-              </button>
-            </div>
 
-            <label className="flex flex-col text-sm font-medium text-ink">
-              {t.whatMatters}
-              <textarea
-                value={preference}
-                onChange={(e) => setPreference(e.target.value)}
-                autoComplete="off"
-                placeholder={t.whatMattersPlaceholder}
-                className="field mt-3 min-h-[7.5rem] resize-none lg:min-h-[12rem] lg:flex-1"
-              />
-            </label>
+              <div className="mt-8 flex min-h-0 flex-col lg:mt-0">
+                <label htmlFor="preference-field" className="flex min-h-5 items-center text-sm font-medium text-ink">
+                  {t.whatMatters}
+                </label>
+                <textarea
+                  id="preference-field"
+                  value={preference}
+                  onChange={(e) => setPreference(e.target.value)}
+                  autoComplete="off"
+                  placeholder={t.whatMattersPlaceholder}
+                  className="field mt-3 min-h-[7.5rem] flex-1 resize-none lg:min-h-0"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              disabled={products.length >= MAX_PRODUCTS}
+              onClick={() => {
+                if (products.length >= MAX_PRODUCTS) return;
+                setProducts([...products, '']);
+              }}
+              className="mt-3 hidden text-sm font-medium text-pine transition hover:text-pine-deep disabled:opacity-30 lg:inline-block"
+            >
+              {t.addProduct}
+            </button>
           </div>
 
           <button
