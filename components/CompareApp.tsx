@@ -2,31 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { AgentEvent, CompareCell, CompareResult } from '@/lib/types';
-
-const TYPES = [
-  {
-    label: 'Headphones',
-    products: ['Sony WH-1000XM5', 'Bose QuietComfort Ultra', 'Apple AirPods Max'],
-    preference: 'Budget around $400, prioritize noise cancelling',
-  },
-  {
-    label: 'Keyboards',
-    products: ['Keychron Q1 Max', 'Logitech MX Mechanical', 'Nuphy Air75 V2'],
-    preference: 'Mostly laptop use, want quiet typing',
-  },
-  {
-    label: 'Monitors',
-    products: ['Dell U2723QE', 'LG 27UP850', 'BenQ RD280U'],
-    preference: 'Coding all day, care about text clarity and USB-C',
-  },
-];
+import { copy, detectLocale, STORAGE_KEY, TYPE_EXAMPLES, type Locale } from '@/lib/i18n';
 
 const MIN_PRODUCTS = 2;
 const MAX_PRODUCTS = 4;
 
 type Step = { id: string; name: string; input: string };
 
-function SourceLink({ href }: { href: string }) {
+function SourceLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
@@ -34,16 +17,16 @@ function SourceLink({ href }: { href: string }) {
       rel="noreferrer"
       className="mt-1.5 inline-block min-h-11 py-1 text-xs font-medium text-pine underline decoration-pine/30 underline-offset-4 hover:decoration-pine sm:min-h-0 sm:py-0"
     >
-      Source
+      {label}
     </a>
   );
 }
 
-function CellBody({ cell }: { cell?: CompareCell }) {
+function CellBody({ cell, sourceLabel }: { cell?: CompareCell; sourceLabel: string }) {
   return (
     <>
       <p className="leading-relaxed">{cell?.text || '—'}</p>
-      {cell?.source && <SourceLink href={cell.source} />}
+      {cell?.source && <SourceLink href={cell.source} label={sourceLabel} />}
     </>
   );
 }
@@ -54,15 +37,15 @@ function isPick(product: string, pickName: string) {
   return a === b || a.includes(b) || b.includes(a);
 }
 
-function WinMatrix({ result }: { result: CompareResult }) {
+function WinMatrix({ result, t }: { result: CompareResult; t: (typeof copy)['en'] }) {
   const wins = result.wins ?? {};
   const rows = result.columns.filter((col) => wins[col]);
   if (rows.length === 0) return null;
 
   return (
     <div className="mt-10">
-      <h3 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">Who wins</h3>
-      <p className="mt-1 text-sm text-ink-faint">Best on each criterion, given what you care about.</p>
+      <h3 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">{t.whoWins}</h3>
+      <p className="mt-1 text-sm text-ink-faint">{t.whoWinsHint}</p>
 
       <ul className="mt-4 divide-y divide-line rounded-3xl border border-line bg-white/55 md:hidden">
         {rows.map((col) => (
@@ -98,7 +81,7 @@ function WinMatrix({ result }: { result: CompareResult }) {
                           viewBox="0 0 20 20"
                           className="mx-auto size-5 text-pine"
                           fill="none"
-                          aria-label="Win"
+                          aria-label={t.win}
                         >
                           <path
                             d="M4.5 10.5 8 14l7.5-8"
@@ -124,6 +107,7 @@ function WinMatrix({ result }: { result: CompareResult }) {
 }
 
 export function CompareApp() {
+  const [locale, setLocale] = useState<Locale>('en');
   const [products, setProducts] = useState(['', '', '']);
   const [preference, setPreference] = useState('');
   const [busy, setBusy] = useState(false);
@@ -139,6 +123,33 @@ export function CompareApp() {
 
   const filled = products.map((p) => p.trim()).filter(Boolean);
   const query = filled.join(' vs ');
+  const t = copy[locale];
+  const types = TYPE_EXAMPLES[locale];
+
+  useEffect(() => {
+    const next = detectLocale();
+    setLocale(next);
+    document.documentElement.lang = next === 'zh' ? 'zh-CN' : 'en';
+  }, []);
+
+  function switchLocale(next: Locale) {
+    const currentType = TYPE_EXAMPLES[locale].find(
+      (item) =>
+        products.length === item.products.length &&
+        products.every((p, i) => p === item.products[i]) &&
+        preference === item.preference
+    );
+    setLocale(next);
+    window.localStorage.setItem(STORAGE_KEY, next);
+    document.documentElement.lang = next === 'zh' ? 'zh-CN' : 'en';
+    if (currentType) {
+      const mapped = TYPE_EXAMPLES[next].find((item) => item.id === currentType.id);
+      if (mapped) {
+        setProducts([...mapped.products]);
+        setPreference(mapped.preference);
+      }
+    }
+  }
 
   useEffect(() => {
     function onScroll() {
@@ -183,18 +194,18 @@ export function CompareApp() {
     setError(null);
     setResult(null);
     setSteps([]);
-    setStatus('Starting agent…');
+    setStatus(t.starting);
     followRef.current = true;
 
     try {
       const res = await fetch('/api/compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, preference }),
+        body: JSON.stringify({ query, preference, locale }),
       });
 
       if (!res.ok || !res.body) {
-        let message = 'Compare failed';
+        let message = t.compareFailed;
         try {
           const data = (await res.json()) as { error?: string };
           if (data.error) message = data.error;
@@ -231,13 +242,13 @@ export function CompareApp() {
           }
           if (event.type === 'result') {
             setResult(event.data);
-            setStatus('Done');
+            setStatus(t.done);
           }
           if (event.type === 'error') throw new Error(event.message);
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Compare failed');
+      setError(err instanceof Error ? err.message : t.compareFailed);
       setStatus(null);
     } finally {
       setBusy(false);
@@ -253,22 +264,41 @@ export function CompareApp() {
       )}
 
       <header className="rise relative pb-2">
+        <div className="relative z-10 flex justify-end">
+          <div className="flex items-center gap-1.5 text-sm">
+            <button
+              type="button"
+              onClick={() => switchLocale('en')}
+              className={locale === 'en' ? 'font-semibold text-ink' : 'text-ink-faint hover:text-ink'}
+            >
+              EN
+            </button>
+            <span className="text-ink-faint">/</span>
+            <button
+              type="button"
+              onClick={() => switchLocale('zh')}
+              className={locale === 'zh' ? 'font-semibold text-ink' : 'text-ink-faint hover:text-ink'}
+            >
+              中文
+            </button>
+          </div>
+        </div>
         <div className="vs-mark" aria-hidden>
           vs
         </div>
         <p className="relative text-xs font-semibold uppercase tracking-[0.18em] text-pine">
-          Research agent
+          {t.kicker}
         </p>
         <h1 className="relative mt-3 max-w-[14ch] font-display text-[2.5rem] font-extrabold leading-[1.06] tracking-[-0.03em] text-ink sm:text-6xl lg:text-[4.25rem]">
-          Compare
-          <span className="block">Agent</span>
+          {t.titleLine1}
+          <span className="block">{t.titleLine2}</span>
         </h1>
         <p className="relative mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink-muted sm:mt-5 sm:text-lg">
-          Paste 2–4 products. The agent plans criteria, reads public sources, and returns a sourced pick.
+          {t.subtitle}
         </p>
       </header>
 
-      <section className="rise-delay relative mt-8 sm:mt-10" aria-label="Start a comparison">
+      <section className="rise-delay relative mt-8 sm:mt-10" aria-label={t.startAComparison}>
         <form
           className="relative max-w-3xl"
           onSubmit={(e) => {
@@ -276,16 +306,16 @@ export function CompareApp() {
             void run();
           }}
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine">Try a type</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine">{t.tryAType}</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {TYPES.map((item) => {
+            {types.map((item) => {
               const selected =
                 products.length === item.products.length &&
                 products.every((p, i) => p === item.products[i]) &&
                 preference === item.preference;
               return (
                 <button
-                  key={item.label}
+                  key={item.id}
                   type="button"
                   onClick={() => {
                     setProducts([...item.products]);
@@ -313,17 +343,15 @@ export function CompareApp() {
                   : 'bg-white/55 text-ink-muted hover:bg-white/90 hover:text-ink'
               }`}
             >
-              Your own
+              {t.yourOwn}
             </button>
           </div>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(15rem,0.85fr)] lg:items-stretch">
             <div>
               <div className="flex items-baseline justify-between gap-3">
-                <p className="text-sm font-medium text-ink">Products</p>
-                <p className="text-xs text-ink-faint">
-                  {filled.length} of {MAX_PRODUCTS}
-                </p>
+                <p className="text-sm font-medium text-ink">{t.products}</p>
+                <p className="text-xs text-ink-faint">{t.ofMax(filled.length, MAX_PRODUCTS)}</p>
               </div>
               <ul className="mt-3 space-y-2.5">
                 {products.map((name, i) => (
@@ -336,12 +364,12 @@ export function CompareApp() {
                         setProducts(next);
                       }}
                       autoComplete="off"
-                      placeholder={`Product ${i + 1}`}
+                      placeholder={t.productPlaceholder(i + 1)}
                       className="field min-h-12 pr-12"
                     />
                     <button
                       type="button"
-                      aria-label="Remove product"
+                      aria-label={t.removeProduct}
                       disabled={products.length <= MIN_PRODUCTS}
                       onClick={() => {
                         if (products.length <= MIN_PRODUCTS) return;
@@ -363,17 +391,17 @@ export function CompareApp() {
                 }}
                 className="mt-3 text-sm font-medium text-pine transition hover:text-pine-deep disabled:opacity-30"
               >
-                + Add product
+                {t.addProduct}
               </button>
             </div>
 
             <label className="flex flex-col text-sm font-medium text-ink">
-              What matters
+              {t.whatMatters}
               <textarea
                 value={preference}
                 onChange={(e) => setPreference(e.target.value)}
                 autoComplete="off"
-                placeholder="Budget, noise cancelling, who it’s for…"
+                placeholder={t.whatMattersPlaceholder}
                 className="field mt-3 min-h-[7.5rem] resize-none lg:min-h-[12rem] lg:flex-1"
               />
             </label>
@@ -384,7 +412,7 @@ export function CompareApp() {
             disabled={busy || filled.length < MIN_PRODUCTS}
             className="mt-8 min-h-12 w-full rounded-2xl bg-pine px-8 text-sm font-semibold tracking-wide text-paper-2 transition hover:bg-pine-deep disabled:opacity-45 sm:w-auto sm:min-w-[10.5rem]"
           >
-            {busy ? 'Researching…' : 'Compare'}
+            {busy ? t.researching : t.compare}
           </button>
         </form>
       </section>
@@ -399,7 +427,7 @@ export function CompareApp() {
           <>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                Agent loop
+                {t.agentLoop}
               </h2>
               {status && (
                 <p className="flex items-center gap-2 text-sm text-ink-muted">
@@ -422,7 +450,7 @@ export function CompareApp() {
                 </li>
               ))}
               {busy && steps.length === 0 && (
-                <li className="py-3 pl-5 text-sm text-ink-muted sm:pl-6">Planning comparison dimensions…</li>
+                <li className="py-3 pl-5 text-sm text-ink-muted sm:pl-6">{t.planning}</li>
               )}
             </ol>
           </>
@@ -437,7 +465,7 @@ export function CompareApp() {
 
       {result && (
         <section ref={resultRef} className="reveal mt-12 scroll-mt-6 sm:mt-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-pine">Recommendation</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-pine">{t.recommendation}</p>
           <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             {result.pick.name}
           </h2>
@@ -445,13 +473,13 @@ export function CompareApp() {
             {result.pick.reason}
           </p>
 
-          <WinMatrix result={result} />
+          <WinMatrix result={result} t={t} />
 
           <div className="mt-10 flex items-end justify-between gap-4">
             <h3 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-              Decision table
+              {t.decisionTable}
             </h3>
-            <p className="hidden text-sm text-ink-faint md:block">Each cell links to a source.</p>
+            <p className="hidden text-sm text-ink-faint md:block">{t.eachCellSourced}</p>
           </div>
 
           <div className="mt-4 space-y-3 md:hidden">
@@ -468,12 +496,12 @@ export function CompareApp() {
                           <p className="text-sm font-semibold text-ink">{p}</p>
                           {picked && (
                             <span className="shrink-0 text-[11px] font-medium uppercase tracking-[0.12em] text-pine">
-                              Pick
+                              {t.pick}
                             </span>
                           )}
                         </div>
                         <div className={`mt-1.5 text-sm text-ink ${picked ? '' : 'text-ink'}`}>
-                          <CellBody cell={cell} />
+                          <CellBody cell={cell} sourceLabel={t.source} />
                         </div>
                       </li>
                     );
@@ -484,12 +512,12 @@ export function CompareApp() {
           </div>
 
           <div className="mt-4 hidden overflow-hidden rounded-3xl border border-line bg-white/55 md:block">
-            <div className="table-scroll" tabIndex={0} aria-label="Comparison table">
+            <div className="table-scroll" tabIndex={0} aria-label={t.comparisonTable}>
               <table className="min-w-full border-collapse text-left text-sm">
                 <thead>
                   <tr className="border-b border-line">
                     <th className="sticky-col sticky-col-head min-w-[7.25rem] py-3 pl-4 pr-3 font-medium text-ink-faint">
-                      Spec
+                      {t.spec}
                     </th>
                     {result.products.map((p) => {
                       const picked = isPick(p, result.pick.name);
@@ -503,7 +531,7 @@ export function CompareApp() {
                           {p}
                           {picked && (
                             <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-pine">
-                              Pick
+                              {t.pick}
                             </span>
                           )}
                         </th>
@@ -526,7 +554,7 @@ export function CompareApp() {
                             className={`px-4 py-3.5 text-ink ${picked ? 'bg-mark/20' : ''}`}
                           >
                             <p className="max-w-[16rem] leading-relaxed">{cell?.text || '—'}</p>
-                            {cell?.source && <SourceLink href={cell.source} />}
+                            {cell?.source && <SourceLink href={cell.source} label={t.source} />}
                           </td>
                         );
                       })}

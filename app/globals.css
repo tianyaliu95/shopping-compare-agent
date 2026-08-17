@@ -40,11 +40,11 @@ body::before {
 }
 
 .font-display {
-  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display), var(--font-cjk), ui-sans-serif, system-ui, sans-serif;
 }
 
 .font-body {
-  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body), var(--font-cjk), ui-sans-serif, system-ui, sans-serif;
 }
 
 .page-shell {

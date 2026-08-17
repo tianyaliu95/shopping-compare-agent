@@ -1,6 +1,7 @@
 export type CompareRequest = {
   query: string;
   preference?: string;
+  locale?: 'en' | 'zh';
 };
 
 export type CompareCell = {

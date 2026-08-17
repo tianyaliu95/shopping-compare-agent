@@ -26,8 +26,8 @@ const config: Config = {
         line: 'var(--line)',
       },
       fontFamily: {
-        display: ['var(--font-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        body: ['var(--font-body)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-cjk)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['var(--font-body)', 'var(--font-cjk)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

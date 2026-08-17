@@ -1,10 +1,16 @@
 import { runTool } from './tools';
 import type { AgentEvent, CompareResult } from './types';
+import { copy, type Locale } from './i18n';
 
 export const GEMINI_MODEL =
   process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
 
-const SYSTEM = `You are a shopping research agent. Compare consumer products using tools, then return a sourced decision table.
+function systemPrompt(locale: Locale) {
+  const lang =
+    locale === 'zh'
+      ? 'Write columns, cell text, pick.reason, caveat, and wins values in Simplified Chinese. Keep product names in their original form.'
+      : 'Write columns, cell text, pick.reason, and caveat in English.';
+  return `You are a shopping research agent. Compare consumer products using tools, then return a sourced decision table.
 
 Rules:
 - Use web_search and fetch_page. Do not invent prices or specs.
@@ -14,6 +20,7 @@ Rules:
 - Prices: include currency and note they may be stale.
 - Keep the loop short for a live demo: call several tools in the SAME turn, at most 2 searches and 3 page fetches total, then return JSON.
 - For each comparison column, pick exactly one winner: the product that is best on that dimension given the shopper's preference. If a column is unknown or a true tie, omit it from wins.
+- ${lang}
 - When ready, output ONLY JSON (no markdown) matching:
 {
   "products": ["A","B"],
@@ -25,6 +32,7 @@ Rules:
   "pick": { "name": "A", "reason": "one short sentence tied to the user's preference" },
   "caveat": "Prices/specs can change; verify before buying."
 }`;
+}
 
 const TOOLS = [
   {
@@ -98,11 +106,13 @@ function quotaRetryMs(message: string): number | null {
 async function geminiTurn(
   apiKey: string,
   contents: Content[],
-  onEvent: (e: AgentEvent) => void
+  onEvent: (e: AgentEvent) => void,
+  locale: Locale
 ): Promise<Part[]> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const t = copy[locale];
   const body = JSON.stringify({
-    systemInstruction: { parts: [{ text: SYSTEM }] },
+    systemInstruction: { parts: [{ text: systemPrompt(locale) }] },
     contents,
     tools: TOOLS,
     generationConfig: {
@@ -129,28 +139,36 @@ async function geminiTurn(
     if (waitMs == null || attempt === 2) break;
     onEvent({
       type: 'status',
-      text: `Free-tier pause, retrying in ${Math.ceil(waitMs / 1000)}s…`,
+      text: t.quotaPause(Math.ceil(waitMs / 1000)),
     });
     await sleep(waitMs);
   }
   throw new Error(lastError);
 }
 
-export async function runCompareAgent(
-  opts: { apiKey: string; query: string; preference?: string; onEvent: (e: AgentEvent) => void }
-) {
+export async function runCompareAgent(opts: {
+  apiKey: string;
+  query: string;
+  preference?: string;
+  locale?: Locale;
+  onEvent: (e: AgentEvent) => void;
+}) {
   const { apiKey, query, preference, onEvent } = opts;
+  const locale: Locale = opts.locale === 'zh' ? 'zh' : 'en';
+  const t = copy[locale];
   const user = [
     `Compare these products:\n${query.trim()}`,
-    preference?.trim() ? `Shopper preference: ${preference.trim()}` : 'No extra preference. Recommend the best overall value.',
+    preference?.trim()
+      ? `Shopper preference: ${preference.trim()}`
+      : 'No extra preference. Recommend the best overall value.',
     'Research with a short tool loop, then return the JSON table.',
   ].join('\n\n');
 
   const contents: Content[] = [{ role: 'user', parts: [{ text: user }] }];
-  onEvent({ type: 'status', text: 'Planning comparison dimensions…' });
+  onEvent({ type: 'status', text: t.planning });
 
   for (let round = 0; round < 5; round++) {
-    const parts = await geminiTurn(apiKey, contents, onEvent);
+    const parts = await geminiTurn(apiKey, contents, onEvent, locale);
     const calls = parts.filter((p) => p.functionCall?.name);
     const text = parts
       .filter((p) => p.text && !p.thought)
@@ -159,7 +177,7 @@ export async function runCompareAgent(
       .trim();
 
     if (calls.length === 0) {
-      onEvent({ type: 'status', text: 'Building the decision table…' });
+      onEvent({ type: 'status', text: t.buildingTable });
       onEvent({ type: 'result', data: parseResult(text) });
       return;
     }
@@ -180,5 +198,5 @@ export async function runCompareAgent(
     contents.push({ role: 'user', parts: toolParts });
   }
 
-  throw new Error('Agent stopped after too many tool steps. Try fewer products.');
+  throw new Error(t.tooManySteps);
 }

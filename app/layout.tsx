@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Figtree, Syne } from 'next/font/google';
+import { Figtree, Noto_Sans_SC, Syne } from 'next/font/google';
 import './globals.css';
 
 const syne = Syne({
@@ -13,6 +13,13 @@ const figtree = Figtree({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-body',
+  display: 'swap',
+});
+
+const noto = Noto_Sans_SC({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-cjk',
   display: 'swap',
 });
 
@@ -32,7 +39,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${syne.variable} ${figtree.variable} min-h-dvh font-body antialiased`}>
+      <body
+        className={`${syne.variable} ${figtree.variable} ${noto.variable} min-h-dvh font-body antialiased`}
+      >
         {children}
       </body>
     </html>

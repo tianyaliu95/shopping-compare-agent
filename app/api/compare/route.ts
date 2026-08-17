@@ -1,4 +1,5 @@
 import { runCompareAgent } from '@/lib/agent';
+import { copy, type Locale } from '@/lib/i18n';
 import type { AgentEvent } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -6,22 +7,25 @@ export const maxDuration = 90;
 
 export async function POST(req: Request) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
-  if (!apiKey) {
-    return Response.json({ error: 'Set GEMINI_API_KEY on the server.' }, { status: 503 });
+  let body: { query?: string; preference?: string; locale?: string };
+  try {
+    body = (await req.json()) as { query?: string; preference?: string; locale?: string };
+  } catch {
+    return Response.json({ error: copy.en.invalidJson }, { status: 400 });
   }
 
-  let body: { query?: string; preference?: string };
-  try {
-    body = (await req.json()) as { query?: string; preference?: string };
-  } catch {
-    return Response.json({ error: 'Invalid JSON' }, { status: 400 });
+  const locale: Locale = body.locale === 'zh' ? 'zh' : 'en';
+  const t = copy[locale];
+
+  if (!apiKey) {
+    return Response.json({ error: t.missingKey }, { status: 503 });
   }
 
   const query = typeof body.query === 'string' ? body.query.trim().slice(0, 800) : '';
   const preference =
     typeof body.preference === 'string' ? body.preference.trim().slice(0, 600) : '';
   if (query.length < 3) {
-    return Response.json({ error: 'Describe 2–4 products to compare.' }, { status: 400 });
+    return Response.json({ error: t.needProducts }, { status: 400 });
   }
 
   const encoder = new TextEncoder();
@@ -35,12 +39,13 @@ export async function POST(req: Request) {
           apiKey,
           query,
           preference,
+          locale,
           onEvent: send,
         });
       } catch (err) {
         send({
           type: 'error',
-          message: err instanceof Error ? err.message : 'Compare failed',
+          message: err instanceof Error ? err.message : t.compareFailed,
         });
       } finally {
         controller.close();
