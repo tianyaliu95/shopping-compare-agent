@@ -37,6 +37,7 @@ Products + preference  →  plan criteria  →  search / fetch  →  observe  �
 - **Per-criterion winners** — a "who wins" matrix on top of the detail table, plus one overall pick
 - **Bilingual** — EN / 中文 UI, with the locale passed to the model so column names and reasoning match
 - **Free-tier friendly** — capped rounds, parallel calls, and 429 backoff that reads Gemini's own retry hint
+- **Degrades instead of breaking** — rate limits protect the shared quota, recent runs are cached and replayed, and each example ships with a recorded real run as a fallback
 
 ## Architecture
 
@@ -98,6 +99,7 @@ Products + preference  →  plan criteria  →  search / fetch  →  observe  �
 - Round cap of 5 and a tool-result budget keep a demo run bounded
 - `429` responses parse Gemini's `retry in Ns` hint and surface a localized pause instead of failing
 - The API key stays server-side; the browser only ever receives SSE events
+- The public endpoint is rate limited per IP and globally; when a live run is unavailable the example categories replay a recorded run instead of erroring
 
 ## Try it
 
@@ -121,7 +123,11 @@ lib/
   agent.ts                 prompt, tool schema, agent loop, retries
   tools.ts                 web_search + fetch_page
   productInput.ts          name vs URL parsing, Amazon canonicalization
+  rateLimit.ts             per-IP + global request windows
+  resultCache.ts           replayable recent runs
+  seeds/                   recorded runs for the built-in examples
   i18n.ts                  EN / 中文 copy and examples
+scripts/seed-examples.ts   regenerates lib/seeds/examples.json
 ```
 
 ## Roadmap

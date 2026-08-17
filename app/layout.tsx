@@ -23,10 +23,38 @@ const noto = Noto_Sans_SC({
   display: 'swap',
 });
 
+const siteUrl = 'https://shopping-compare-agent.vercel.app';
+const title = 'Compare Agent — sourced shopping research';
+const description =
+  'Paste 2–4 products. The agent plans criteria, searches public sources, and returns a sourced decision table.';
+
 export const metadata: Metadata = {
-  title: 'Compare Agent — sourced shopping research',
-  description:
-    'Paste 2–4 products. The agent plans criteria, searches public sources, and returns a sourced decision table.',
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  applicationName: 'Compare Agent',
+  authors: [{ name: 'Tianya Liu', url: 'https://www.tianyaliu.ca/' }],
+  keywords: [
+    'AI agent',
+    'function calling',
+    'Gemini',
+    'product comparison',
+    'shopping research',
+    'Next.js',
+  ],
+  openGraph: {
+    type: 'website',
+    url: siteUrl,
+    siteName: 'Compare Agent',
+    title,
+    description,
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 };
 
 export const viewport: Viewport = {

@@ -107,6 +107,10 @@ const en = {
   tooManySteps: 'Agent stopped after too many tool steps. Try fewer products.',
   quotaPause: (s: number) => `Free-tier pause, retrying in ${s}s…`,
   buildingTable: 'Building the decision table…',
+  cachedRun: 'Replaying the latest run for these products…',
+  rateLimited: (min: number) =>
+    `This demo runs on a free API tier. Try again in about ${min} min, or pick one of the example categories.`,
+  backToTop: 'Back to top',
   copyrightYear: (year: number) => `© ${year}`,
   copyrightName: 'Tianya Liu',
   poweredBy: 'Powered by Gemini',
@@ -157,6 +161,10 @@ const zh = {
   tooManySteps: '工具步骤过多，已停止。请减少产品数量再试。',
   quotaPause: (s: number) => `免费额度暂停，${s} 秒后重试…`,
   buildingTable: '正在生成对比表…',
+  cachedRun: '正在回放这几个产品最近一次的研究过程…',
+  rateLimited: (min: number) =>
+    `本演示使用免费 API 额度，请约 ${min} 分钟后再试，或先点一个示例品类看看。`,
+  backToTop: '回到顶部',
   copyrightYear: (year: number) => `© ${year}`,
   copyrightName: 'Tianya Liu',
   poweredBy: '由 Gemini 提供支持',

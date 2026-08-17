@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AgentLoop } from '@/components/compare/AgentLoop';
+import { BackToTop } from '@/components/compare/BackToTop';
 import { CompareForm } from '@/components/compare/CompareForm';
 import { Footer } from '@/components/compare/Footer';
 import { Header } from '@/components/compare/Header';
@@ -85,6 +86,7 @@ export function CompareApp() {
       {result && <ResultSection ref={resultRef} result={result} t={t} />}
       <div ref={endRef} className="h-px" aria-hidden />
       <Footer t={t} />
+      <BackToTop t={t} />
     </div>
   );
 }

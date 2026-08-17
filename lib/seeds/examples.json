@@ -1,0 +1,1047 @@
+[
+  {
+    "id": "headphones",
+    "locale": "en",
+    "products": [
+      "Sony WH-1000XM5",
+      "Bose QuietComfort Ultra",
+      "Apple AirPods Max"
+    ],
+    "preference": "Budget around $400, prioritize noise cancelling",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH-1000XM5 price noise cancelling"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Bose QuietComfort Ultra price noise cancelling"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Apple AirPods Max price noise cancelling"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH 1000XM5 price official store"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Bose QuietComfort Ultra headphones price official store"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH-1000XM5 wireless headphones amazon"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Bose QuietComfort Ultra headphones amazon"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Sony WH-1000XM5",
+            "Bose QuietComfort Ultra",
+            "Apple AirPods Max"
+          ],
+          "columns": [
+            "Price",
+            "Noise Cancelling",
+            "Who it's for",
+            "Notable Cons"
+          ],
+          "cells": {
+            "Sony WH-1000XM5": {
+              "Price": {
+                "text": "$399.99 (may be stale)",
+                "source": "https://www.sony.com"
+              },
+              "Noise Cancelling": {
+                "text": "Industry-leading ANC with Auto NC Optimizer",
+                "source": "https://www.sony.com"
+              },
+              "Who it's for": {
+                "text": "Shoppers wanting top-tier ANC and comfort around $400",
+                "source": "https://www.sony.com"
+              },
+              "Notable Cons": {
+                "text": "Non-folding design",
+                "source": "https://www.sony.com"
+              }
+            },
+            "Bose QuietComfort Ultra": {
+              "Price": {
+                "text": "$429.00 (may be stale)",
+                "source": "https://www.bose.com"
+              },
+              "Noise Cancelling": {
+                "text": "World-class CustomTune noise cancellation",
+                "source": "https://www.bose.com"
+              },
+              "Who it's for": {
+                "text": "Users prioritizing supreme comfort and immersive ANC",
+                "source": "https://www.bose.com"
+              },
+              "Notable Cons": {
+                "text": "Expensive; touch controls can be finicky",
+                "source": "https://www.bose.com"
+              }
+            },
+            "Apple AirPods Max": {
+              "Price": {
+                "text": "$549.00 (may be stale)",
+                "source": "https://www.apple.com"
+              },
+              "Noise Cancelling": {
+                "text": "Exceptional ANC with Transparency mode",
+                "source": "https://www.apple.com"
+              },
+              "Who it's for": {
+                "text": "Apple ecosystem users with a higher budget",
+                "source": "https://www.apple.com"
+              },
+              "Notable Cons": {
+                "text": "Very heavy; high price well above $400 budget",
+                "source": "https://www.apple.com"
+              }
+            }
+          },
+          "wins": {
+            "Price": "Sony WH-1000XM5",
+            "Noise Cancelling": "Sony WH-1000XM5",
+            "Who it's for": "Sony WH-1000XM5",
+            "Notable Cons": "Sony WH-1000XM5"
+          },
+          "pick": {
+            "name": "Sony WH-1000XM5",
+            "reason": "It best fits your $400 budget while delivering phenomenal noise-cancelling performance."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "vacuums",
+    "locale": "en",
+    "products": [
+      "Dyson V15 Detect",
+      "Roborock Q Revo",
+      "Shark Detect Pro"
+    ],
+    "preference": "Pet hair in an apartment, around $700, want strong suction without much fuss",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Dyson V15 Detect price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Roborock Q Revo price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Shark Detect Pro price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Dyson V15 Detect vacuum price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Roborock Qrevo robot vacuum price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "site:bestbuy.com Dyson V15 Detect"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "site:bestbuy.com Roborock Qrevo"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Dyson V15 Detect vacuum cleaner amazon"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Dyson V15 Detect",
+            "Roborock Q Revo",
+            "Shark Detect Pro"
+          ],
+          "columns": [
+            "Price",
+            "Cleaning Type",
+            "Pet Hair & Maintenance",
+            "Notable Cons"
+          ],
+          "cells": {
+            "Dyson V15 Detect": {
+              "Price": {
+                "text": "$749.99",
+                "source": "https://www.dyson.com"
+              },
+              "Cleaning Type": {
+                "text": "Cordless Stick Vacuum",
+                "source": "https://www.dyson.com"
+              },
+              "Pet Hair & Maintenance": {
+                "text": "Anti-tangle screw tool, high suction; manual emptying required",
+                "source": "https://www.dyson.com"
+              },
+              "Notable Cons": {
+                "text": "Manual pushing required; expensive",
+                "source": "https://www.dyson.com"
+              }
+            },
+            "Roborock Q Revo": {
+              "Price": {
+                "text": "$799.99",
+                "source": "https://us.roborock.com"
+              },
+              "Cleaning Type": {
+                "text": "Robot Vacuum & Mop",
+                "source": "https://us.roborock.com"
+              },
+              "Maintenance": {
+                "text": "Dual spinning mops, auto-emptying dock; low fuss",
+                "source": "https://us.roborock.com"
+              },
+              "Notable Cons": {
+                "text": "Higher upfront price; struggles with heavy stairs",
+                "source": "https://us.roborock.com"
+              }
+            },
+            "Shark Detect Pro": {
+              "Price": {
+                "text": "$449.99",
+                "source": "https://www.sharkclean.com"
+              },
+              "Cleaning Type": {
+                "text": "Cordless Stick Vacuum",
+                "source": "https://www.sharkclean.com"
+              },
+              "Pet Hair & Maintenance": {
+                "text": "Auto-empty base, QuadClean brushroll; good for pets",
+                "source": "https://www.sharkclean.com"
+              },
+              "Notable Cons": {
+                "text": "Smaller bin on stick; loud auto-empty dock",
+                "source": "https://www.sharkclean.com"
+              }
+            }
+          },
+          "wins": {
+            "Price": "Shark Detect Pro",
+            "Pet Hair & Maintenance": "Roborock Q Revo"
+          },
+          "pick": {
+            "name": "Roborock Q Revo",
+            "reason": "It offers a truly hands-free apartment cleaning experience with automated emptying and strong suction for pet hair."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "coffee-makers",
+    "locale": "en",
+    "products": [
+      "Breville Barista Express",
+      "Gaggia Classic Evo Pro",
+      "De'Longhi Dedica Arte"
+    ],
+    "preference": "Home espresso around $700, want something easy to learn",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Breville Barista Express price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Gaggia Classic Evo Pro price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Delonghi Dedica Arte price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Breville Barista Express espresso machine price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Gaggia Classic Evo Pro espresso machine price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Delonghi Dedica Arte espresso machine price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Breville Barista Express amazon"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Breville Barista Express",
+            "Gaggia Classic Evo Pro",
+            "De'Longhi Dedica Arte"
+          ],
+          "columns": [
+            "Price",
+            "Built-in Grinder",
+            "Ease of Learning",
+            "Notable Cons"
+          ],
+          "cells": {
+            "Breville Barista Express": {
+              "Price": {
+                "text": "$699.95",
+                "source": "https://www.breville.com"
+              },
+              "Built-in Grinder": {
+                "text": "Yes",
+                "source": "https://www.breville.com"
+              },
+              "Ease of Learning": {
+                "text": "Very user-friendly with integrated grinder and guided controls",
+                "source": "https://www.breville.com"
+              },
+              "Notable Cons": {
+                "text": "Bulkier footprint, built-in grinder can be limiting for upgrading",
+                "source": "https://www.breville.com"
+              }
+            },
+            "Gaggia Classic Evo Pro": {
+              "Text": {
+                "text": ""
+              },
+              "Price": {
+                "text": "$449.00",
+                "source": "https://www.wholelattelove.com"
+              },
+              "Built-in Grinder": {
+                "text": "No",
+                "source": "https://www.wholelattelove.com"
+              },
+              "Ease of Learning": {
+                "text": "Moderate, requires external grinder and manual technique",
+                "source": "https://www.wholelattelove.com"
+              },
+              "Notable Cons": {
+                "text": "No grinder included, plastic tamper, learning curve",
+                "source": "https://www.wholelattelove.com"
+              }
+            },
+            "De'Longhi Dedica Arte": {
+              "Price": {
+                "text": "$329.95",
+                "source": "https://www.delonghi.com"
+              },
+              "Built-in Grinder": {
+                "text": "No",
+                "source": "https://www.delonghi.com"
+              },
+              "Ease of Learning": {
+                "text": "Beginner-friendly slim manual machine",
+                "source": "https://www.delonghi.com"
+              },
+              "Notable Cons": {
+                "text": "Uses pressurized portafilter primarily, lighter build quality",
+                "source": "https://www.delonghi.com"
+              }
+            }
+          },
+          "wins": {
+            "Price": "De'Longhi Dedica Arte",
+            "Built-in Grinder": "Breville Barista Express",
+            "Ease of Learning": "Breville Barista Express",
+            "Notable Cons": "De'Longhi Dedica Arte"
+          },
+          "pick": {
+            "name": "Breville Barista Express",
+            "reason": "It hits your budget closely while offering an all-in-one setup that is very easy to learn for beginners."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "office-chairs",
+    "locale": "en",
+    "products": [
+      "Herman Miller Aeron",
+      "Steelcase Leap V2",
+      "Secretlab Titan Evo"
+    ],
+    "preference": "Sitting 8 hours a day, need lumbar support, up to $1,200",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Herman Miller Aeron price official specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Steelcase Leap V2 price official specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Secretlab Titan Evo price official specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Herman Miller Aeron office chair price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Steelcase Leap V2 office chair price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Secretlab Titan Evo chair price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Herman Miller store Aeron chair"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Herman Miller Aeron",
+            "Steelcase Leap V2",
+            "Secretlab Titan Evo"
+          ],
+          "columns": [
+            "Price",
+            "Lumbar Support",
+            "Best For",
+            "Notable Cons"
+          ],
+          "cells": {
+            "Herman Miller Aeron": {
+              "Price": {
+                "text": "$1,445 (approx, varies by size)",
+                "source": "https://store.hermanmiller.com/home-office-chairs/aeron-chair/2193.html"
+              },
+              "Lumbar Support": {
+                "text": "PostureFit SL adjustable lumbar and sacral support",
+                "source": "https://store.hermanmiller.com/home-office-chairs/aeron-chair/2193.html"
+              },
+              "Best For": {
+                "text": "All-day breathable mesh comfort and ergonomic posture",
+                "source": "https://store.hermanmiller.com/home-office-chairs/aeron-chair/2193.html"
+              },
+              "Notable Cons": {
+                "text": "Exceeds $1,200 budget; mesh seat edge can feel restrictive to some",
+                "source": "https://store.hermanmiller.com/home-office-chairs/aeron-chair/2193.html"
+              }
+            },
+            "Steelcase Leap V2": {
+              "Price": {
+                "text": "$1,079 (approx)",
+                "source": "https://www.steelcase.com/products/office-chairs/leap/"
+              },
+              "Lumbar Support": {
+                "text": "LiveBack technology that flexes with spine + adjustable lumbar",
+                "source": "https://www.steelcase.com/products/office-chairs/leap/"
+              },
+              "Best For": {
+                "text": "Long 8+ hour work sessions under $1,200 with dynamic back support",
+                "source": "https://www.steelcase.com/products/office-chairs/leap/"
+              },
+              "Notable Cons": {
+                "text": "Padded seat can feel firm; premium price tag",
+                "source": "https://www.steelcase.com/products/office-chairs/leap/"
+              }
+            },
+            "Secretlab Titan Evo": {
+              "Price": {
+                "text": "$549 (approx)",
+                "source": "https://secretlab.co/products/titan-evo"
+              },
+              "Lumbar Support": {
+                "text": "4-way L-ADAPT internal lumbar support system",
+                "source": "https://secretlab.co/products/titan-evo"
+              },
+              "Best For": {
+                "text": "Budget-friendly gaming and desk setup with plush cushioning",
+                "source": "https://secretlab.co/products/titan-evo"
+              },
+              "Notable Cons": {
+                "text": "Faux leather can trap heat; firmer seating feel compared to soft recliners",
+                "source": "https://secretlab.co/products/titan-evo"
+              }
+            }
+          },
+          "wins": {
+            "Price": "Secretlab Titan Evo",
+            "Lumbar Support": "Steelcase Leap V2",
+            "Best For": "Steelcase Leap V2"
+          },
+          "pick": {
+            "name": "Steelcase Leap V2",
+            "reason": "It fits comfortably under your $1,200 budget while offering world-class dynamic lumbar support for 8-hour workdays."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "headphones",
+    "locale": "zh",
+    "products": [
+      "Sony WH-1000XM5",
+      "Bose QuietComfort Ultra",
+      "Apple AirPods Max"
+    ],
+    "preference": "预算约 400 美元，优先降噪",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH-1000XM5 price official spec"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Bose QuietComfort Ultra price official spec"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Apple AirPods Max price official spec"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH 1000XM5 price amazon"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Bose QuietComfort Ultra price amazon"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH-1000XM5 wireless headphones price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Bose QuietComfort Ultra headphones price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Sony WH-1000XM5"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Sony WH-1000XM5",
+            "Bose QuietComfort Ultra",
+            "Apple AirPods Max"
+          ],
+          "columns": [
+            "价格",
+            "降噪能力",
+            "重量",
+            "续航时间",
+            "显著缺点"
+          ],
+          "cells": {
+            "Sony WH-1000XM5": {
+              "价格": {
+                "text": "$399.99",
+                "source": "https://electronics.sony.com"
+              },
+              "降噪能力": {
+                "text": "顶尖水平",
+                "source": "https://electronics.sony.com"
+              },
+              "重量": {
+                "text": "约 250 克",
+                "source": "https://electronics.sony.com"
+              },
+              "续航时间": {
+                "text": "最长 30 小时",
+                "source": "https://electronics.sony.com"
+              },
+              "显著缺点": {
+                "text": "无法完全折叠",
+                "source": "https://electronics.sony.com"
+              }
+            },
+            "Bose QuietComfort Ultra": {
+              "价格": {
+                "text": "$429.00",
+                "source": "https://www.bose.com"
+              },
+              "降噪能力": {
+                "text": "行业领先",
+                "source": "https://www.bose.com"
+              },
+              "重量": {
+                "text": "约 253 克",
+                "source": "https://www.bose.com"
+              },
+              "续航时间": {
+                "text": "最长 24 小时",
+                "source": "https://www.bose.com"
+              },
+              "显著缺点": {
+                "text": "价格略超预算，佩戴偶有夹头感",
+                "source": "https://www.bose.com"
+              }
+            },
+            "Apple AirPods Max": {
+              "价格": {
+                "text": "$549.00",
+                "source": "https://www.apple.com"
+              },
+              "降噪能力": {
+                "text": "极佳",
+                "source": "https://www.apple.com"
+              },
+              "重量": {
+                "text": "约 384.8 克",
+                "source": "https://www.apple.com"
+              },
+              "续航时间": {
+                "text": "最长 20 小时",
+                "source": "https://www.apple.com"
+              },
+              "显著缺点": {
+                "text": "价格昂贵且机身较重",
+                "source": "https://www.apple.com"
+              }
+            }
+          },
+          "wins": {
+            "价格": "Sony WH-1000XM5",
+            "降噪能力": "Bose QuietComfort Ultra",
+            "重量": "Sony WH-1000XM5",
+            "续航时间": "Sony WH-1000XM5"
+          },
+          "pick": {
+            "name": "Bose QuietComfort Ultra",
+            "reason": "在预算约 400 美元且优先考虑顶级降噪的诉求下，Bose 提供最卓越的沉浸式降噪体验。"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "vacuums",
+    "locale": "zh",
+    "products": [
+      "Dyson V15 Detect",
+      "Roborock Q Revo",
+      "Shark Detect Pro"
+    ],
+    "preference": "公寓有宠物毛，预算约 700 美元，希望吸力强、不用太操心",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Dyson V15 Detect price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Roborock Q Revo price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Shark Detect Pro price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Dyson V15 Detect vacuum cleaner price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Roborock Qrevo vacuum price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Dyson V15 Detect"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Dyson V15 Detect",
+            "Roborock Q Revo",
+            "Shark Detect Pro"
+          ],
+          "columns": [
+            "价格",
+            "类型与省心程度",
+            "宠物毛发处理",
+            "显著缺点"
+          ],
+          "cells": {
+            "Dyson V15 Detect": {
+              "价格": {
+                "text": "约 749 美元",
+                "source": "https://www.dyson.com"
+              },
+              "类型与省心程度": {
+                "text": "无线手持吸尘器，需手动推地，清洁过程需全程参与",
+                "source": "https://www.dyson.com"
+              },
+              "宠物毛发处理": {
+                "text": "防缠绕螺旋形吸头，吸力强劲，适合清理各处毛发",
+                "source": "https://www.dyson.com"
+              },
+              "显著缺点": {
+                "text": "价格超预算，且为手持式，不够解放双手",
+                "source": "https://www.dyson.com"
+              }
+            },
+            "Roborock Q Revo": {
+              "价格": {
+                "text": "约 799.99 美元（常有折扣降至 700 美元左右）",
+                "source": "https://us.roborock.com"
+              },
+              "类型与省心程度": {
+                "text": "扫拖一体机器人，带基站自动清洗拖布与集尘，极度省心",
+                "source": "https://us.roborock.com"
+              },
+              "宠物毛发处理": {
+                "text": "强劲吸力加胶刷，自动集尘，完美适应公寓宠物毛发",
+                "source": "https://us.roborock.com"
+              },
+              "显著缺点": {
+                "text": "原价略超预算，基站占一定空间",
+                "source": "https://us.roborock.com"
+              }
+            },
+            "Shark Detect Pro": {
+              "价格": {
+                "text": "约 349.99 美元",
+                "source": "https://www.sharkclean.com"
+              },
+              "类型与省心程度": {
+                "text": "无线吸尘器，带自动倒尘底座，部分省心",
+                "source": "https://www.sharkclean.com"
+              },
+              "宠物毛发处理": {
+                "text": "自清洁刷辊，防缠绕，对宠物毛发有效",
+                "source": "https://www.sharkclean.com"
+              },
+              "显著缺点": {
+                "text": "吸力与高端机型相比稍逊，同样需要手动操作",
+                "source": "https://www.sharkclean.com"
+              }
+            }
+          },
+          "wins": {
+            "价格": "Shark Detect Pro",
+            "类型与省心程度": "Roborock Q Revo",
+            "宠物毛发处理": "Dyson V15 Detect"
+          },
+          "pick": {
+            "name": "Roborock Q Revo",
+            "reason": "它是一台全自动扫拖机器人，最符合公寓养宠且希望“不用太操心”的需求，预算也接近700美元。"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "coffee-makers",
+    "locale": "zh",
+    "products": [
+      "Breville Barista Express",
+      "Gaggia Classic Evo Pro",
+      "De'Longhi Dedica Arte"
+    ],
+    "preference": "家用意式，预算约 700 美元，希望好上手",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Breville Barista Express price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Gaggia Classic Evo Pro price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Delonghi Dedica Arte price specs"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Breville Barista Express price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Gaggia Classic Evo Pro price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Delonghi Dedica Arte EC885 price"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Breville Barista Express espresso machine"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Breville Barista Express",
+            "Gaggia Classic Evo Pro",
+            "De'Longhi Dedica Arte"
+          ],
+          "columns": [
+            "价格",
+            "内置磨豆机",
+            "好上手程度",
+            "显著缺点"
+          ],
+          "cells": {
+            "Breville Barista Express": {
+              "价格": {
+                "text": "约 $699.95",
+                "source": "https://www.breville.com"
+              },
+              "内置磨豆机": {
+                "text": "有",
+                "source": "https://www.breville.com"
+              },
+              "好上手程度": {
+                "text": "高（一体化设计，半自动指引清晰）",
+                "source": "https://www.breville.com"
+              },
+              "显著缺点": {
+                "text": "机身较占空间，磨豆机为一体不可拆",
+                "source": "https://www.breville.com"
+              }
+            },
+            "Gaggia Classic Evo Pro": {
+              "价格": {
+                "text": "约 $449.00",
+                "source": "https://www.gaggia.com"
+              },
+              "内置磨豆机": {
+                "text": "无",
+                "source": "https://www.gaggia.com"
+              },
+              "好上手程度": {
+                "text": "中（需另外购置磨豆机并学习布粉压粉）",
+                "source": "https://www.gaggia.com"
+              },
+              "显著缺点": {
+                "text": "无内置磨豆机，配件需额外购买",
+                "source": "https://www.gaggia.com"
+              }
+            },
+            "De'Longhi Dedica Arte": {
+              "价格": {
+                "text": "约 $329.95",
+                "source": "https://www.delonghi.com"
+              },
+              "内置磨豆机": {
+                "text": "无",
+                "source": "https://www.delonghi.com"
+              },
+              "好上手程度": {
+                "text": "高（支持加压粉碗，适合新手）",
+                "source": "https://www.delonghi.com"
+              },
+              "显著缺点": {
+                "text": "机身轻巧但材质塑料感稍多，蒸汽稍弱",
+                "source": "https://www.delonghi.com"
+              }
+            }
+          },
+          "wins": {
+            "价格": "De'Longhi Dedica Arte",
+            "内置磨豆机": "Breville Barista Express",
+            "好上手程度": "Breville Barista Express"
+          },
+          "pick": {
+            "name": "Breville Barista Express",
+            "reason": "自带磨豆机且一体化程度高，在700美元预算内对新手最友好、最容易上手。"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "office-chairs",
+    "locale": "zh",
+    "products": [
+      "Herman Miller Aeron",
+      "Steelcase Leap V2",
+      "Secretlab Titan Evo"
+    ],
+    "preference": "每天坐 8 小时，需要腰部支撑，预算 1200 美元以内",
+    "capturedAt": "2026-08-17",
+    "events": [
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Herman Miller Aeron price official store"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Steelcase Leap V2 price official store"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Secretlab Titan Evo price official store"
+      },
+      {
+        "type": "tool",
+        "name": "web_search",
+        "input": "Herman Miller Aeron price"
+      },
+      {
+        "type": "result",
+        "data": {
+          "products": [
+            "Herman Miller Aeron",
+            "Steelcase Leap V2",
+            "Secretlab Titan Evo"
+          ],
+          "columns": [
+            "价格",
+            "腰部支撑",
+            "适合久坐(8小时+)",
+            "保修期"
+          ],
+          "cells": {
+            "Herman Miller Aeron": {
+              "价格": {
+                "text": "约 $1,445 起 (超出预算)",
+                "source": "https://www.hermanmiller.com"
+              },
+              "腰": {
+                "text": "PostureFit SL 动态骶骨和腰部支撑",
+                "source": "https://www.hermanmiller.com"
+              },
+              "腰部支撑": {
+                "text": "PostureFit SL 动态骶骨和腰部支撑",
+                "source": "https://www.hermanmiller.com"
+              },
+              "适合久坐(8小时+)": {
+                "text": "极其适合，网布透气性极佳",
+                "source": "https://www.hermanmiller.com"
+              },
+              "保修期": {
+                "text": "12 年",
+                "source": "https://www.hermanmiller.com"
+              }
+            },
+            "Steelcase Leap V2": {
+              "价格": {
+                "text": "约 $1,079 起 (接近预算)",
+                "source": "https://www.steelcase.com"
+              },
+              "腰部支撑": {
+                "text": "LiveBack 技术，可调腰靠力度",
+                "source": "https://www.steelcase.com"
+              },
+              "适合久坐(8小时+)": {
+                "text": "非常适合，包裹感与支撑俱佳",
+                "source": "https://www.steelcase.com"
+              },
+              "保修期": {
+                "text": "12 年",
+                "source": "https://www.steelcase.com"
+              }
+            },
+            "Secretlab Titan Evo": {
+              "价格": {
+                "text": "约 $549 (符合预算)",
+                "source": "https://secretlab.co"
+              },
+              "腰部支撑": {
+                "text": "4向 L-ADAPT 内部腰部支撑系统",
+                "source": "https://secretlab.co"
+              },
+              "适合久坐(8小时+)": {
+                "text": "适合，但坐垫偏硬",
+                "source": "https://secretlab.co"
+              },
+              "保修期": {
+                "text": "最长 5 年",
+                "source": "https://secretlab.co"
+              }
+            }
+          },
+          "wins": {
+            "价格": "Secretlab Titan Evo",
+            "腰部支撑": "Steelcase Leap V2",
+            "适合久坐(8小时+)": "Herman Miller Aeron",
+            "保修期": "Steelcase Leap V2"
+          },
+          "pick": {
+            "name": "Steelcase Leap V2",
+            "reason": "它在提供顶级久坐支撑和12年保修的同时，比Aeron更接近您的1200美元预算。"
+          }
+        }
+      }
+    ]
+  }
+]
