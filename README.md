@@ -1,15 +1,18 @@
-<h1 align="center">Shopping Compare Agent</h1>
+<h1>Shopping Compare Agent</h1>
 
-<p align="center">
+<p>
   A tool-using AI agent that researches products on the live web and returns a <b>sourced decision table</b>.
 </p>
 
-<p align="center">
+<p>
+  <a href="https://shopping-compare-agent.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/live%20demo-online-1a5c45" /></a>
   <img alt="Next.js 14" src="https://img.shields.io/badge/Next.js-14-000?logo=nextdotjs&logoColor=white" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
   <img alt="Gemini" src="https://img.shields.io/badge/Gemini-function%20calling-1a5c45" />
   <img alt="SSE" src="https://img.shields.io/badge/streaming-SSE-1a5c45" />
 </p>
+
+**Try it → [shopping-compare-agent.vercel.app](https://shopping-compare-agent.vercel.app)**
 
 ---
 
@@ -37,19 +40,25 @@ Products + preference  →  plan criteria  →  search / fetch  →  observe  �
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  U[Products + preference] --> R[POST /api/compare]
-  R -->|URLs pasted| P[Prefetch pages in parallel]
-  P --> L[Agent loop]
-  R -->|names only| L
-  L -->|function call| S[web_search]
-  L -->|function call| F[fetch_page]
-  S --> L
-  F --> L
-  L -->|no more calls| J[Strict JSON result]
-  L -.->|SSE events| UI[Live Agent Loop panel]
-  J -.->|SSE result| UI
+```
+   Products + preference
+             │
+             ▼
+   POST /api/compare ─────────── SSE events ──────────►  Agent Loop panel
+             │                                              (live UI)
+             ├─ URLs pasted ──►  prefetch pages in parallel
+             │                              │
+             └─ names only ─────────────────┤
+                                            ▼
+                              ┌──────  Agent loop  ──────┐
+                              │      (up to 5 rounds)    │
+                     function │                          │ tool
+                        calls ▼                          ▲ results
+                        web_search  ·  fetch_page ───────┘
+                                            │
+                                            │ no more calls
+                                            ▼
+                    Strict JSON: columns · sourced cells · wins · pick
 ```
 
 | Stage | Responsibility | File |
@@ -90,24 +99,11 @@ flowchart LR
 - `429` responses parse Gemini's `retry in Ns` hint and surface a localized pause instead of failing
 - The API key stays server-side; the browser only ever receives SSE events
 
-## Getting started
+## Try it
 
-**Prerequisites** — Node 18+ and a [Gemini API key](https://aistudio.google.com/apikey) (the free tier is enough).
+**→ [shopping-compare-agent.vercel.app](https://shopping-compare-agent.vercel.app)**
 
-```bash
-git clone https://github.com/tianyaliu95/shopping-compare-agent.git
-cd shopping-compare-agent
-cp .env.example .env      # add GEMINI_API_KEY
-npm install
-npm run dev
-```
-
-Open http://localhost:3000 and click a category chip for a pre-filled example.
-
-| Variable | Required | Default | Notes |
-| --- | --- | --- | --- |
-| `GEMINI_API_KEY` | yes | — | Server-side only |
-| `GEMINI_MODEL` | no | `gemini-3.5-flash-lite` | Chosen for free-tier rate limits |
+Click a category chip for a pre-filled example, or paste your own product names and Amazon links, then watch the agent loop fill in while it researches.
 
 ## Project structure
 
