@@ -38,7 +38,7 @@ export function Header({
         {t.titleLine1}
         <span className="block">{t.titleLine2}</span>
       </h1>
-      <p className="relative mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink-muted sm:mt-5 sm:text-lg">
+      <p className="relative mt-4 max-w-xl text-[0.95rem] leading-relaxed text-ink-muted sm:mt-5 sm:text-lg">
         {t.subtitle}
       </p>
     </header>
