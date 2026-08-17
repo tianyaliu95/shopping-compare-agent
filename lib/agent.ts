@@ -2,7 +2,7 @@ import { runTool } from './tools';
 import type { AgentEvent, CompareResult } from './types';
 
 export const GEMINI_MODEL =
-  process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+  process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
 
 const SYSTEM = `You are a shopping research agent. Compare consumer products using tools, then return a sourced decision table.
 
@@ -103,7 +103,7 @@ async function geminiTurn(
     generationConfig: {
       temperature: 0.2,
       maxOutputTokens: 2048,
-      thinkingConfig: { thinkingBudget: 0 },
+      thinkingConfig: { thinkingLevel: 'low' },
     },
   });
 
