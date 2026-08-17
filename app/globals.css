@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f4efe6;
+  --foreground: #1c1917;
+}
+
+body {
+  color: var(--foreground);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, #f3e0c8 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 10%, #ead9c4 0%, transparent 46%),
+    var(--background);
+}
+
+.font-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+}
