@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import { Figtree, Noto_Sans_SC, Syne } from 'next/font/google';
 import './globals.css';
 
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${syne.variable} ${figtree.variable} ${noto.variable} min-h-dvh font-body antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
